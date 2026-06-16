@@ -462,8 +462,8 @@ const {
    Pega aquí la URL y anon key de TU proyecto Supabase de Plegadizos.
    Si se dejan vacías, la app corre en modo LOCAL (localStorage) para pruebas.
    ===================================================================== */
-const SUPABASE_URL = ""; // p.ej. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = ""; // publishable key (sb_publishable_...) o anon key
+const SUPABASE_URL = "https://nrrtkweaatfgdvurkjgi.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_FcYxw7ycNFaJXP4VF6qlmw_oBIzGXzQ";
 const SCHEMA = "fipsa";
 const LS_PREFIX = "fipsa_pleg__"; // prefijo propio, distinto al de Corrugados
 
@@ -888,23 +888,17 @@ function Login({
     setBusy(true);
     try {
       if (CLOUD) {
+        // Autenticación por tabla (gestionada desde el módulo Usuarios de la app).
         const {
           data,
           error
-        } = await supa.auth.signInWithPassword({
-          email,
-          password: pass
+        } = await supa.rpc("login", {
+          p_username: email.trim(),
+          p_password: pass
         });
         if (error) throw error;
-        const {
-          data: perfiles
-        } = await supa.from("perfiles").select("*").eq("auth_uid", data.user.id).limit(1);
-        const perfil = perfiles?.[0] || {
-          username: email,
-          nombre_real: email,
-          rol: "usuario",
-          permisos: {}
-        };
+        const perfil = data && data[0];
+        if (!perfil) throw new Error("Usuario o contraseña incorrectos.");
         onLogin(perfil);
       } else {
         // modo local demo
@@ -943,11 +937,11 @@ function Login({
     }
   }, "Inicia sesi\xF3n para continuar."), /*#__PURE__*/React.createElement("label", {
     className: "fld"
-  }, CLOUD ? "Correo" : "Usuario"), /*#__PURE__*/React.createElement("input", {
+  }, "Usuario"), /*#__PURE__*/React.createElement("input", {
     value: email,
     onChange: e => setEmail(e.target.value),
     autoFocus: true,
-    placeholder: CLOUD ? "tu@correo.com" : "admin"
+    placeholder: CLOUD ? "usuario" : "admin"
   }), /*#__PURE__*/React.createElement("label", {
     className: "fld"
   }, "Contrase\xF1a"), /*#__PURE__*/React.createElement("input", {
@@ -5434,11 +5428,45 @@ function Usuarios({
       const o = {
         ...edit
       };
-      if (o.id) await db.update("perfiles", o.id, o);else await db.insert("perfiles", {
-        ...o,
-        activo: true,
-        permisos: o.permisos || {}
-      });
+      const pwd = (o.password || "").trim();
+      if (!o.username || !o.username.trim()) {
+        toast("El usuario es obligatorio");
+        return;
+      }
+      if (!o.id && !pwd) {
+        toast("Asigna una contraseña al nuevo usuario");
+        return;
+      }
+      const fila = {
+        username: o.username.trim(),
+        nombre_real: o.nombre_real || null,
+        rol: o.rol || "usuario",
+        permisos: o.permisos || {},
+        activo: o.activo !== false
+      };
+      let id;
+      if (o.id) {
+        await db.update("perfiles", o.id, fila);
+        id = o.id;
+      } else {
+        const row = await db.insert("perfiles", fila);
+        id = row.id;
+      }
+      if (pwd) {
+        if (CLOUD) {
+          const {
+            error
+          } = await supa.rpc("set_password", {
+            p_perfil_id: id,
+            p_password: pwd
+          });
+          if (error) throw error;
+        } else {
+          await db.update("perfiles", id, {
+            password_local: pwd
+          });
+        }
+      }
       toast("Usuario guardado");
       setEdit(null);
       load();
@@ -5472,7 +5500,7 @@ function Usuarios({
       fontSize: 12,
       marginTop: 0
     }
-  }, "En modo Supabase, el acceso (correo y contrase\xF1a) se crea en Supabase Auth; aqu\xED defines el rol y los permisos por m\xF3dulo."), /*#__PURE__*/React.createElement("div", {
+  }, "Da de alta usuarios con su contrase\xF1a, rol y permisos directamente aqu\xED. No necesitas entrar a Supabase. La contrase\xF1a se guarda cifrada."), /*#__PURE__*/React.createElement("div", {
     className: "tbl-wrap"
   }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Usuario"), /*#__PURE__*/React.createElement("th", null, "Nombre"), /*#__PURE__*/React.createElement("th", null, "Rol"), /*#__PURE__*/React.createElement("th", null, "Activo"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, rows.map(u => /*#__PURE__*/React.createElement("tr", {
     key: u.id
@@ -5532,7 +5560,29 @@ function Usuarios({
     value: "usuario"
   }, "Usuario"), /*#__PURE__*/React.createElement("option", {
     value: "admin"
-  }, "Administrador")))), edit.rol !== "admin" && /*#__PURE__*/React.createElement("div", {
+  }, "Administrador"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "fld"
+  }, edit.id ? "Nueva contraseña" : "Contraseña"), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    value: edit.password || "",
+    onChange: e => setEdit({
+      ...edit,
+      password: e.target.value
+    }),
+    placeholder: edit.id ? "(dejar en blanco para no cambiarla)" : "contraseña del usuario"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "fld"
+  }, "Estado"), /*#__PURE__*/React.createElement("select", {
+    value: edit.activo === false ? "0" : "1",
+    onChange: e => setEdit({
+      ...edit,
+      activo: e.target.value === "1"
+    })
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "1"
+  }, "Activo"), /*#__PURE__*/React.createElement("option", {
+    value: "0"
+  }, "Inactivo")))), edit.rol !== "admin" && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 16
     }
@@ -5606,24 +5656,31 @@ const CONSTRUCCION = {
    APP SHELL
    ===================================================================== */
 function App() {
-  const [perfil, setPerfil] = useState(null);
+  const [perfil, setPerfilState] = useState(() => {
+    try {
+      const s = sessionStorage.getItem(LS_PREFIX + "sesion");
+      return s ? JSON.parse(s) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+  const setPerfil = p => {
+    try {
+      if (p) sessionStorage.setItem(LS_PREFIX + "sesion", JSON.stringify(p));else sessionStorage.removeItem(LS_PREFIX + "sesion");
+    } catch (e) {}
+    setPerfilState(p);
+  };
   const [active, setActive] = useState("dashboard");
   const [toastMsg, setToastMsg] = useState("");
   const [open, setOpen] = useState(false);
   useEffect(() => {
     seedDemo();
-    if (CLOUD) {
-      supa.auth.getSession().then(({
-        data
-      }) => {/* sesión persistida opcional */});
-    }
   }, []);
   const toast = m => {
     setToastMsg(m);
     setTimeout(() => setToastMsg(""), 2600);
   };
   function logout() {
-    if (CLOUD) supa.auth.signOut();
     setPerfil(null);
   }
   if (!perfil) return /*#__PURE__*/React.createElement(Login, {
