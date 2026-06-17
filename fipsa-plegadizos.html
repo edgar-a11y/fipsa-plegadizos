@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>FIPSA Plegadizos · Sistema ERP</title><script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;}::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:#f1f1f1;}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}#root{min-height:100vh;}#loader{position:fixed;inset:0;background:#9A3412;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s;}#loader.hide{opacity:0;pointer-events:none;}#loader h1{color:#F97316;font-size:32px;font-weight:900;letter-spacing:3px;margin-bottom:6px;}#loader p{color:#666;font-size:14px;margin-bottom:36px;}.spinner{width:36px;height:36px;border:3px solid #2d2d4e;border-top-color:#F97316;border-radius:50%;animation:spin .8s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}.no-print{}@media print{.no-print{display:none!important;}body{background:#fff;}#op-print-area{padding:20px;}}@media(max-width:760px){.app-shell{flex-direction:column!important;height:auto!important;min-height:100vh;overflow:visible!important;}.app-nav{position:fixed!important;top:0;left:0;bottom:0;width:240px!important;z-index:1001;overflow-y:auto;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 18px rgba(0,0,0,.35);}.app-nav.open{transform:translateX(0);}.app-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;}.app-burger{display:flex!important;align-items:center;gap:10px;position:fixed;top:0;left:0;right:0;height:50px;padding:0 16px;background:#1a1a2e;color:#fff;border:none;z-index:998;cursor:pointer;}.app-main{padding-top:50px!important;}div[style*="grid-template-columns"]{grid-template-columns:1fr!important;}div[style*="max-width"]{max-width:94vw!important;}div[style*="width: 380px"],div[style*="width: 400px"],div[style*="width: 420px"],div[style*="width: 440px"],div[style*="width: 460px"],div[style*="width: 480px"],div[style*="width: 500px"],div[style*="width: 520px"],div[style*="width: 560px"],div[style*="width: 600px"],div[style*="width: 620px"],div[style*="width: 660px"],div[style*="width: 720px"],div[style*="width: 760px"],div[style*="width: 800px"],div[style*="width: 820px"]{width:auto!important;max-width:94vw!important;}div[style*="padding: 48px"],div[style*="padding: 40px"],div[style*="padding: 32px"]{padding:18px!important;}}@media(min-width:761px){.app-burger,.app-overlay{display:none!important;}}</style></head><body><div id="loader"><h1>FIPSA</h1><p>Sistema de Gestión Empresarial</p><div class="spinner"></div></div><div id="root"></div><script>const{useState,useEffect,useRef,useCallback,useMemo}=React;const SUPA_URL='https://nrrtkweaatfgdvurkjgi.supabase.co';const SUPA_KEY='sb_publishable_FcYxw7ycNFaJXP4VF6qlmw_oBIzGXzQ';function getTokenExp(t){try{return JSON.parse(atob(t.split('.')[1])).exp||0;}catch(e){return 0;}}window._authExpired=false;window.storage={_t:function(){const s=window._supabaseSession;if(!s)return null;const exp=s.expires_at||getTokenExp(s.access_token);if(exp&&Math.floor(Date.now()/1000)>exp-30){window._authExpired=true;return null;}return s.access_token;},get:async function(key){const t=this._t();if(!t){try{const v=localStorage.getItem('fipsa__'+key);return v!==null?{key,value:v}:null;}catch(e){return null;}}try{const r=await fetch(SUPA_URL+'/rest/v1/fipsa_store?key=eq.'+encodeURIComponent(key)+'&select=value',{cache:'no-store',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t,'Cache-Control':'no-cache, no-store'}});if(r.status===401){window._authExpired=true;return null;}if(!r.ok)return null;const rows=await r.json();if(!Array.isArray(rows)||!rows.length)return null;const raw=rows[0].value;return{key,value:typeof raw==='string'?raw:JSON.stringify(raw)};}catch(e){return null;}},set:async function(key,value){const t=this._t();if(!t){try{const v=typeof value==='string'?value:JSON.stringify(value);localStorage.setItem('fipsa__'+key,v);return{key,value:v};}catch(e){return null;}}try{const jv=typeof value==='string'?JSON.parse(value):value;const r=await fetch(SUPA_URL+'/rest/v1/fipsa_store?on_conflict=key',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({key,value:jv,updated_at:new Date().toISOString()})});if(r.status===401){window._authExpired=true;return null;}return{key,value};}catch(e){return null;}},delete:async function(key){const t=this._t();if(!t){try{localStorage.removeItem('fipsa__'+key);return{key,deleted:true};}catch(e){return null;}}try{await fetch(SUPA_URL+'/rest/v1/fipsa_store?key=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}});return{key,deleted:true};}catch(e){return null;}},list:async function(prefix){const t=this._t();if(!t){try{var keys=[],p='fipsa__'+(prefix||'');for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.startsWith(p))keys.push(k.replace('fipsa__',''));}return{keys};}catch(e){return{keys:[]};}}try{const url=prefix?SUPA_URL+'/rest/v1/fipsa_store?key=like.'+encodeURIComponent(prefix+'%')+'&select=key':SUPA_URL+'/rest/v1/fipsa_store?select=key';const r=await fetch(url,{cache:'no-store',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}});if(!r.ok)return{keys:[]};const rows=await r.json();return{keys:Array.isArray(rows)?rows.map(r=>r.key):[]};}catch(e){return{keys:[]};}}};function LoginScreen({onLogin,message}){const[email,setEmail]=React.useState('');const[pass,setPass]=React.useState('');const[loading,setLoading]=React.useState(false);const[error,setError]=React.useState('');const handleLogin=async(e)=>{e.preventDefault();setLoading(true);setError('');try{const res=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},body:JSON.stringify({email,password:pass})});const data=await res.json();if(!res.ok)throw new Error(data.error_description||data.msg||'Credenciales incorrectas');localStorage.setItem('fipsa_session',JSON.stringify(data));window._authExpired=false;onLogin(data);}catch(err){setError(err.message);}setLoading(false);};return React.createElement('div',{style:{minHeight:'100vh',background:'#9A3412',display:'flex',alignItems:'center',justifyContent:'center'}},React.createElement('div',{style:{background:'#fff',borderRadius:16,padding:48,width:380,boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}},message&&React.createElement('div',{style:{background:'#fee2e2',color:'#dc2626',borderRadius:8,padding:'10px 14px',fontSize:13,marginBottom:16,textAlign:'center',fontWeight:600}},'⚠️ '+message),React.createElement('div',{style:{textAlign:'center',marginBottom:32}},React.createElement('div',{style:{width:64,height:64,background:'#1a1a2e',borderRadius:16,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28}},'📦'),React.createElement('h1',{style:{color:'#1a1a2e',fontSize:24,fontWeight:900,margin:0}},'FIPSA'),React.createElement('p',{style:{color:'#888',fontSize:13,margin:'4px 0 0'}},'Sistema de Gestión Empresarial')),React.createElement('form',{onSubmit:handleLogin},React.createElement('div',{style:{marginBottom:16}},React.createElement('label',{style:{fontSize:12,fontWeight:700,color:'#555',textTransform:'uppercase',display:'block',marginBottom:6}},'Correo electrónico'),React.createElement('input',{type:'email',value:email,onChange:e=>setEmail(e.target.value),required:true,autoFocus:true,style:{width:'100%',padding:'12px 14px',borderRadius:8,border:'1px solid #e0e0e0',fontSize:14,outline:'none',boxSizing:'border-box'},placeholder:'usuario@empresa.com'})),React.createElement('div',{style:{marginBottom:24}},React.createElement('label',{style:{fontSize:12,fontWeight:700,color:'#555',textTransform:'uppercase',display:'block',marginBottom:6}},'Contraseña'),React.createElement('input',{type:'password',value:pass,onChange:e=>setPass(e.target.value),required:true,style:{width:'100%',padding:'12px 14px',borderRadius:8,border:'1px solid #e0e0e0',fontSize:14,outline:'none',boxSizing:'border-box'},placeholder:'••••••••'})),error&&React.createElement('div',{style:{background:'#fee2e2',color:'#dc2626',borderRadius:8,padding:'10px 14px',fontSize:13,marginBottom:16}},'⚠️ '+error),React.createElement('button',{type:'submit',disabled:loading,style:{width:'100%',padding:'13px',background:loading?'#ccc':'#F97316',color:'#1a1a2e',border:'none',borderRadius:8,fontWeight:900,fontSize:15,cursor:loading?'not-allowed':'pointer'}},loading?'Ingresando...':'Ingresar'))));}function Root(){const[session,setSession]=React.useState(null);const[currentUser,setCurrentUser]=React.useState(null);const[checking,setChecking]=React.useState(true);const[expiredMsg,setExpiredMsg]=React.useState('');const loadProfile=async(sess)=>{try{const r=await fetch(SUPA_URL+'/rest/v1/fipsa_usuarios?email=eq.'+encodeURIComponent(sess.user.email)+'&limit=1',{cache:'no-store',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+sess.access_token}});if(!r.ok)return;const rows=await r.json();if(rows&&rows.length>0){setCurrentUser(rows[0]);}else{const permisos={};['clientes','cotizaciones','catalogos','pedidos','produccion','inventario','requisiciones','compras','cobranza'].forEach(m=>{permisos[m]={ver:true,escribir:true,editar:true,eliminar:false};});const perfil={auth_id:sess.user.id,nombre:sess.user.email.split('@')[0],email:sess.user.email,rol:'admin',activo:true,permisos};await fetch(SUPA_URL+'/rest/v1/fipsa_usuarios',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+sess.access_token,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(perfil)});setCurrentUser(perfil);}}catch(e){console.error(e);}};React.useEffect(()=>{const stored=localStorage.getItem('fipsa_session');if(stored){try{const s=JSON.parse(stored);let exp=s.expires_at||0;if(!exp&&s.access_token){try{exp=JSON.parse(atob(s.access_token.split('.')[1])).exp||0;}catch(e){}}if(exp&&Math.floor(Date.now()/1000)<exp-30){window._supabaseSession=s;window._authExpired=false;setSession(s);loadProfile(s).then(()=>setChecking(false));return;}else{localStorage.removeItem('fipsa_session');}}catch(e){}}setChecking(false);},[]);React.useEffect(()=>{if(!session)return;const check=setInterval(()=>{if(window._authExpired){localStorage.removeItem('fipsa_session');window._supabaseSession=null;setSession(null);setCurrentUser(null);setExpiredMsg('Tu sesión expiró. Por favor vuelve a ingresar.');}},15000);return()=>clearInterval(check);},[session]);const handleLogin=async(s)=>{window._supabaseSession=s;window._authExpired=false;setExpiredMsg('');setSession(s);await loadProfile(s);};const handleLogout=()=>{localStorage.removeItem('fipsa_session');window._supabaseSession=null;window._authExpired=false;setSession(null);setCurrentUser(null);setExpiredMsg('');};if(checking)return React.createElement('div',{style:{minHeight:'100vh',background:'#9A3412',display:'flex',alignItems:'center',justifyContent:'center'}},React.createElement('div',{className:'spinner'}));if(!session)return React.createElement(LoginScreen,{onLogin:handleLogin,message:expiredMsg});return React.createElement(FipsaApp,{supabaseSession:session,onLogout:handleLogout,currentUser:currentUser||{}});}</script><script>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>FIPSA Plegadizos · Sistema ERP</title><script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;}::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:#f1f1f1;}::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}#root{min-height:100vh;}#loader{position:fixed;inset:0;background:#1C1917;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s;}#loader.hide{opacity:0;pointer-events:none;}#loader h1{color:#F97316;font-size:32px;font-weight:900;letter-spacing:3px;margin-bottom:6px;}#loader p{color:#666;font-size:14px;margin-bottom:36px;}.spinner{width:36px;height:36px;border:3px solid #2d2d4e;border-top-color:#F97316;border-radius:50%;animation:spin .8s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}.no-print{}@media print{.no-print{display:none!important;}body{background:#fff;}#op-print-area{padding:20px;}}@media(max-width:760px){.app-shell{flex-direction:column!important;height:auto!important;min-height:100vh;overflow:visible!important;}.app-nav{position:fixed!important;top:0;left:0;bottom:0;width:240px!important;z-index:1001;overflow-y:auto;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 18px rgba(0,0,0,.35);}.app-nav.open{transform:translateX(0);}.app-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;}.app-burger{display:flex!important;align-items:center;gap:10px;position:fixed;top:0;left:0;right:0;height:50px;padding:0 16px;background:#1a1a2e;color:#fff;border:none;z-index:998;cursor:pointer;}.app-main{padding-top:50px!important;}div[style*="grid-template-columns"]{grid-template-columns:1fr!important;}div[style*="max-width"]{max-width:94vw!important;}div[style*="width: 380px"],div[style*="width: 400px"],div[style*="width: 420px"],div[style*="width: 440px"],div[style*="width: 460px"],div[style*="width: 480px"],div[style*="width: 500px"],div[style*="width: 520px"],div[style*="width: 560px"],div[style*="width: 600px"],div[style*="width: 620px"],div[style*="width: 660px"],div[style*="width: 720px"],div[style*="width: 760px"],div[style*="width: 800px"],div[style*="width: 820px"]{width:auto!important;max-width:94vw!important;}div[style*="padding: 48px"],div[style*="padding: 40px"],div[style*="padding: 32px"]{padding:18px!important;}}@media(min-width:761px){.app-burger,.app-overlay{display:none!important;}}</style></head><body><div id="loader"><h1>FIPSA</h1><p>Sistema de Gestión Empresarial</p><div class="spinner"></div></div><div id="root"></div><script>const{useState,useEffect,useRef,useCallback,useMemo}=React;const SUPA_URL='https://nrrtkweaatfgdvurkjgi.supabase.co';const SUPA_KEY='sb_publishable_FcYxw7ycNFaJXP4VF6qlmw_oBIzGXzQ';function getTokenExp(t){try{return JSON.parse(atob(t.split('.')[1])).exp||0;}catch(e){return 0;}}window._authExpired=false;window.storage={_t:function(){const s=window._supabaseSession;if(!s)return null;const exp=s.expires_at||getTokenExp(s.access_token);if(exp&&Math.floor(Date.now()/1000)>exp-30){window._authExpired=true;return null;}return s.access_token;},get:async function(key){const t=this._t();if(!t){try{const v=localStorage.getItem('fipsa__'+key);return v!==null?{key,value:v}:null;}catch(e){return null;}}try{const r=await fetch(SUPA_URL+'/rest/v1/fipsa_store?key=eq.'+encodeURIComponent(key)+'&select=value',{cache:'no-store',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t,'Cache-Control':'no-cache, no-store'}});if(r.status===401){window._authExpired=true;return null;}if(!r.ok)return null;const rows=await r.json();if(!Array.isArray(rows)||!rows.length)return null;const raw=rows[0].value;return{key,value:typeof raw==='string'?raw:JSON.stringify(raw)};}catch(e){return null;}},set:async function(key,value){const t=this._t();if(!t){try{const v=typeof value==='string'?value:JSON.stringify(value);localStorage.setItem('fipsa__'+key,v);return{key,value:v};}catch(e){return null;}}try{const jv=typeof value==='string'?JSON.parse(value):value;const r=await fetch(SUPA_URL+'/rest/v1/fipsa_store?on_conflict=key',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({key,value:jv,updated_at:new Date().toISOString()})});if(r.status===401){window._authExpired=true;return null;}return{key,value};}catch(e){return null;}},delete:async function(key){const t=this._t();if(!t){try{localStorage.removeItem('fipsa__'+key);return{key,deleted:true};}catch(e){return null;}}try{await fetch(SUPA_URL+'/rest/v1/fipsa_store?key=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}});return{key,deleted:true};}catch(e){return null;}},list:async function(prefix){const t=this._t();if(!t){try{var keys=[],p='fipsa__'+(prefix||'');for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.startsWith(p))keys.push(k.replace('fipsa__',''));}return{keys};}catch(e){return{keys:[]};}}try{const url=prefix?SUPA_URL+'/rest/v1/fipsa_store?key=like.'+encodeURIComponent(prefix+'%')+'&select=key':SUPA_URL+'/rest/v1/fipsa_store?select=key';const r=await fetch(url,{cache:'no-store',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}});if(!r.ok)return{keys:[]};const rows=await r.json();return{keys:Array.isArray(rows)?rows.map(r=>r.key):[]};}catch(e){return{keys:[]};}}};function LoginScreen({onLogin,message}){const[email,setEmail]=React.useState('');const[pass,setPass]=React.useState('');const[loading,setLoading]=React.useState(false);const[error,setError]=React.useState('');const handleLogin=async(e)=>{e.preventDefault();setLoading(true);setError('');try{const res=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},body:JSON.stringify({email,password:pass})});const data=await res.json();if(!res.ok)throw new Error(data.error_description||data.msg||'Credenciales incorrectas');localStorage.setItem('fipsa_session',JSON.stringify(data));window._authExpired=false;onLogin(data);}catch(err){setError(err.message);}setLoading(false);};return React.createElement('div',{style:{minHeight:'100vh',background:'#1C1917',display:'flex',alignItems:'center',justifyContent:'center'}},React.createElement('div',{style:{background:'#fff',borderRadius:16,padding:48,width:380,boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}},message&&React.createElement('div',{style:{background:'#fee2e2',color:'#dc2626',borderRadius:8,padding:'10px 14px',fontSize:13,marginBottom:16,textAlign:'center',fontWeight:600}},'⚠️ '+message),React.createElement('div',{style:{textAlign:'center',marginBottom:32}},React.createElement('div',{style:{width:64,height:64,background:'#1a1a2e',borderRadius:16,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:28}},'📦'),React.createElement('h1',{style:{color:'#1a1a2e',fontSize:24,fontWeight:900,margin:0}},'FIPSA'),React.createElement('p',{style:{color:'#888',fontSize:13,margin:'4px 0 0'}},'Sistema de Gestión Empresarial')),React.createElement('form',{onSubmit:handleLogin},React.createElement('div',{style:{marginBottom:16}},React.createElement('label',{style:{fontSize:12,fontWeight:700,color:'#555',textTransform:'uppercase',display:'block',marginBottom:6}},'Correo electrónico'),React.createElement('input',{type:'email',value:email,onChange:e=>setEmail(e.target.value),required:true,autoFocus:true,style:{width:'100%',padding:'12px 14px',borderRadius:8,border:'1px solid #e0e0e0',fontSize:14,outline:'none',boxSizing:'border-box'},placeholder:'usuario@empresa.com'})),React.createElement('div',{style:{marginBottom:24}},React.createElement('label',{style:{fontSize:12,fontWeight:700,color:'#555',textTransform:'uppercase',display:'block',marginBottom:6}},'Contraseña'),React.createElement('input',{type:'password',value:pass,onChange:e=>setPass(e.target.value),required:true,style:{width:'100%',padding:'12px 14px',borderRadius:8,border:'1px solid #e0e0e0',fontSize:14,outline:'none',boxSizing:'border-box'},placeholder:'••••••••'})),error&&React.createElement('div',{style:{background:'#fee2e2',color:'#dc2626',borderRadius:8,padding:'10px 14px',fontSize:13,marginBottom:16}},'⚠️ '+error),React.createElement('button',{type:'submit',disabled:loading,style:{width:'100%',padding:'13px',background:loading?'#ccc':'#F97316',color:'#1a1a2e',border:'none',borderRadius:8,fontWeight:900,fontSize:15,cursor:loading?'not-allowed':'pointer'}},loading?'Ingresando...':'Ingresar'))));}function Root(){const[session,setSession]=React.useState(null);const[currentUser,setCurrentUser]=React.useState(null);const[checking,setChecking]=React.useState(true);const[expiredMsg,setExpiredMsg]=React.useState('');const loadProfile=async(sess)=>{try{const r=await fetch(SUPA_URL+'/rest/v1/fipsa_usuarios?email=eq.'+encodeURIComponent(sess.user.email)+'&limit=1',{cache:'no-store',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+sess.access_token}});if(!r.ok)return;const rows=await r.json();if(rows&&rows.length>0){setCurrentUser(rows[0]);}else{const permisos={};['clientes','cotizaciones','catalogos','pedidos','produccion','inventario','requisiciones','compras','cobranza'].forEach(m=>{permisos[m]={ver:true,escribir:true,editar:true,eliminar:false};});const perfil={auth_id:sess.user.id,nombre:sess.user.email.split('@')[0],email:sess.user.email,rol:'admin',activo:true,permisos};await fetch(SUPA_URL+'/rest/v1/fipsa_usuarios',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+sess.access_token,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(perfil)});setCurrentUser(perfil);}}catch(e){console.error(e);}};React.useEffect(()=>{const stored=localStorage.getItem('fipsa_session');if(stored){try{const s=JSON.parse(stored);let exp=s.expires_at||0;if(!exp&&s.access_token){try{exp=JSON.parse(atob(s.access_token.split('.')[1])).exp||0;}catch(e){}}if(exp&&Math.floor(Date.now()/1000)<exp-30){window._supabaseSession=s;window._authExpired=false;setSession(s);loadProfile(s).then(()=>setChecking(false));return;}else{localStorage.removeItem('fipsa_session');}}catch(e){}}setChecking(false);},[]);React.useEffect(()=>{if(!session)return;const check=setInterval(()=>{if(window._authExpired){localStorage.removeItem('fipsa_session');window._supabaseSession=null;setSession(null);setCurrentUser(null);setExpiredMsg('Tu sesión expiró. Por favor vuelve a ingresar.');}},15000);return()=>clearInterval(check);},[session]);const handleLogin=async(s)=>{window._supabaseSession=s;window._authExpired=false;setExpiredMsg('');setSession(s);await loadProfile(s);};const handleLogout=()=>{localStorage.removeItem('fipsa_session');window._supabaseSession=null;window._authExpired=false;setSession(null);setCurrentUser(null);setExpiredMsg('');};if(checking)return React.createElement('div',{style:{minHeight:'100vh',background:'#1C1917',display:'flex',alignItems:'center',justifyContent:'center'}},React.createElement('div',{className:'spinner'}));if(!session)return React.createElement(LoginScreen,{onLogin:handleLogin,message:expiredMsg});return React.createElement(FipsaApp,{supabaseSession:session,onLogout:handleLogout,currentUser:currentUser||{}});}</script><script>
 // ══════════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════════════════════════════════════════
@@ -184,14 +184,14 @@ const COT_COLOR = {
 const PED_ESTADOS = ["Nuevo", "En producción", "Entregado", "Cerrado", "Cancelado"];
 const PED_COLOR = {
   "Nuevo": ["#6b7280", "#f3f4f6"],
-  "En producción": ["#C2410C", "#FFF7ED"],
+  "En producción": ["#EA580C", "#FFF7ED"],
   "Entregado": ["#2563eb", "#eff6ff"],
   "Cerrado": ["#16a34a", "#f0fdf4"],
   "Cancelado": ["#dc2626", "#fef2f2"],
   "En revisión": ["#6b7280", "#f3f4f6"],
-  "Liberado": ["#C2410C", "#FFF7ED"],
+  "Liberado": ["#EA580C", "#FFF7ED"],
   "En espera de requisitos": ["#6b7280", "#f3f4f6"],
-  "Listo para entregar": ["#C2410C", "#FFF7ED"]
+  "Listo para entregar": ["#EA580C", "#FFF7ED"]
 };
 const PED_SIGUIENTE = {
   "En producción": "Entregado"
@@ -262,14 +262,14 @@ const PROCESOS_PROD = [{
   tipo: "normal"
 }];
 const REQ_COLOR = {
-  Pendiente: ["#C2410C", "#FFF7ED"],
+  Pendiente: ["#EA580C", "#FFF7ED"],
   Autorizada: ["#16a34a", "#f0fdf4"],
   Rechazada: ["#dc2626", "#fef2f2"]
 };
 const OC_ESTADOS = ["Emitida", "Recibida", "Pagada", "Cancelada"];
 const OC_COLOR = {
   Emitida: ["#2563eb", "#eff6ff"],
-  Recibida: ["#C2410C", "#FFF7ED"],
+  Recibida: ["#EA580C", "#FFF7ED"],
   Pagada: ["#16a34a", "#f0fdf4"],
   Cancelada: ["#dc2626", "#fef2f2"],
   Borrador: ["#2563eb", "#eff6ff"],
@@ -673,22 +673,22 @@ function ModuloUsuarios({ currentUser, esAdmin = false, empleados = [], saveEmpl
   const vincular = (u, empId) => { if (!empId) return; if (typeof saveEmpleados === "function") saveEmpleados(emps.map(e => e.id === Number(empId) || String(e.id) === String(empId) ? { ...e, usuarioId: u.id } : e)); };
   const borrarEmpleadoSinAcceso = e => { if (typeof saveEmpleados === "function") saveEmpleados(emps.filter(x => x.id !== e.id)); };
 
-  const S2 = { card: { ...S.card, padding: 20, marginBottom: 14 }, td: { padding: "10px 12px", borderBottom: "1px solid #FAF6F1", fontSize: 13 } };
+  const S2 = { card: { ...S.card, padding: 20, marginBottom: 14 }, td: { padding: "10px 12px", borderBottom: "1px solid #FAFAF9", fontSize: 13 } };
   const banner = msg ? h("div", { style: { padding: "10px 14px", borderRadius: 8, background: msg.tipo === "ok" ? "#dcfce7" : "#fee2e2", color: msg.tipo === "ok" ? "#16a34a" : "#dc2626", marginBottom: 14 } }, msg.txt) : null;
 
   if (!canVer && !esAdmin) return h("div", { style: { padding: 24, color: "#777" } }, "No tienes permiso para ver este m\u00f3dulo.");
 
   // ----- PERMISOS -----
   if (view === "permisos" && selected) return h("div", { style: { padding: 20 } },
-    h("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 20 } }, h("button", { onClick: () => setView("list"), style: S.btn("#FAF6F1", "#555") }, "\u2190 Volver"), h("h2", { style: { margin: 0, fontSize: 17, fontWeight: 800 } }, "Permisos de ", selected.nombre)), banner,
+    h("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 20 } }, h("button", { onClick: () => setView("list"), style: S.btn("#FAFAF9", "#555") }, "\u2190 Volver"), h("h2", { style: { margin: 0, fontSize: 17, fontWeight: 800 } }, "Permisos de ", selected.nombre)), banner,
     h("div", { style: S2.card }, h("div", { style: { overflowX: "auto" } }, h("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13 } },
       h("thead", null, h("tr", { style: { background: "#1a1a2e" } }, h("th", { style: { padding: "10px 14px", color: "#F97316", textAlign: "left", fontWeight: 700 } }, "M\xf3dulo"), ["\ud83d\udc41\ufe0f Ver", "\u270f\ufe0f Escribir", "\ud83d\udd27 Editar", "\ud83d\uddd1\ufe0f Eliminar"].map(hh => h("th", { key: hh, style: { padding: "10px 14px", color: "#F97316", textAlign: "center", fontWeight: 700, width: 100 } }, hh)))),
       h("tbody", null, MODULOS_LISTA.map((m, i) => {
         const pp = permEdit[m.id] || { ver: false, escribir: false, editar: false };
         const upd = (k, v) => setPermEdit(prev => ({ ...prev, [m.id]: { ...pp, [k]: v } }));
-        return h("tr", { key: m.id, style: { background: i % 2 === 0 ? "#fff" : "#fafaf8" } }, h("td", { style: S2.td }, h("span", { style: { fontWeight: 600 } }, m.label)), ["ver", "escribir", "editar", "eliminar"].map(tipo => h("td", { key: tipo, style: { ...S2.td, textAlign: "center" } }, h("input", { type: "checkbox", checked: !!pp[tipo], onChange: e => { const val = e.target.checked; if ((tipo === "editar" || tipo === "escribir" || tipo === "eliminar") && val) upd("ver", true); if (tipo === "ver" && !val) setPermEdit(prev => ({ ...prev, [m.id]: { ver: false, escribir: false, editar: false, eliminar: false } })); else upd(tipo, val); }, style: { width: 18, height: 18, cursor: "pointer", accentColor: "#F97316" } }))));
+        return h("tr", { key: m.id, style: { background: i % 2 === 0 ? "#fff" : "#FFFFFF" } }, h("td", { style: S2.td }, h("span", { style: { fontWeight: 600 } }, m.label)), ["ver", "escribir", "editar", "eliminar"].map(tipo => h("td", { key: tipo, style: { ...S2.td, textAlign: "center" } }, h("input", { type: "checkbox", checked: !!pp[tipo], onChange: e => { const val = e.target.checked; if ((tipo === "editar" || tipo === "escribir" || tipo === "eliminar") && val) upd("ver", true); if (tipo === "ver" && !val) setPermEdit(prev => ({ ...prev, [m.id]: { ver: false, escribir: false, editar: false, eliminar: false } })); else upd(tipo, val); }, style: { width: 18, height: 18, cursor: "pointer", accentColor: "#F97316" } }))));
       })))),
-    h("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 } }, h("button", { onClick: () => setView("list"), style: S.btn("#FAF6F1", "#555") }, "Cancelar"), h("button", { onClick: guardarPermisos, disabled: saving, style: { background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 800, cursor: "pointer" } }, saving ? "Guardando..." : "\ud83d\udcbe Guardar permisos"))));
+    h("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 } }, h("button", { onClick: () => setView("list"), style: S.btn("#FAFAF9", "#555") }, "Cancelar"), h("button", { onClick: guardarPermisos, disabled: saving, style: { background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 800, cursor: "pointer" } }, saving ? "Guardando..." : "\ud83d\udcbe Guardar permisos"))));
 
   // ----- CATÁLOGOS (departamentos / puestos) -----
   if (view === "catalogos") {
@@ -697,14 +697,14 @@ function ModuloUsuarios({ currentUser, esAdmin = false, empleados = [], saveEmpl
     const addPuesto = () => { if (!puestoForm.nombre) return; savePuestos([{ id: Date.now(), nombre: puestoForm.nombre, departamentoId: puestoForm.departamentoId }, ...(puestos || [])]); setPuestoForm({ nombre: "", departamentoId: "" }); };
     const delPuesto = pp => savePuestos((puestos || []).filter(x => x.id !== pp.id));
     return h("div", { style: { padding: 20, maxWidth: 900, margin: "0 auto" } },
-      h("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 16 } }, h("button", { onClick: () => setView("list"), style: S.btn("#FAF6F1", "#555") }, "\u2190 Volver"), h("h2", { style: { margin: 0, fontSize: 17, fontWeight: 800 } }, "Cat\u00e1logos de la empresa")),
-      h("div", { style: { display: "flex", gap: 8, marginBottom: 14 } }, ["deptos", "puestos"].map(tb => h("button", { key: tb, onClick: () => setTab(tb), style: S.btn(tab === tb ? "#1a1a2e" : "#FAF6F1", tab === tb ? "#fff" : "#555") }, tb === "deptos" ? "Departamentos" : "Puestos"))),
+      h("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 16 } }, h("button", { onClick: () => setView("list"), style: S.btn("#FAFAF9", "#555") }, "\u2190 Volver"), h("h2", { style: { margin: 0, fontSize: 17, fontWeight: 800 } }, "Cat\u00e1logos de la empresa")),
+      h("div", { style: { display: "flex", gap: 8, marginBottom: 14 } }, ["deptos", "puestos"].map(tb => h("button", { key: tb, onClick: () => setTab(tb), style: S.btn(tab === tb ? "#1a1a2e" : "#FAFAF9", tab === tb ? "#fff" : "#555") }, tb === "deptos" ? "Departamentos" : "Puestos"))),
       tab === "deptos" ? h("div", { style: S2.card },
         (canCreate || esAdmin) ? h("div", { style: { display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" } }, h("input", { placeholder: "Nombre del departamento", value: deptoForm.nombre, onChange: e => setDeptoForm(f => ({ ...f, nombre: e.target.value })), style: { ...S.input, flex: 1, minWidth: 160 } }), h("input", { placeholder: "Descripci\u00f3n (opcional)", value: deptoForm.descripcion, onChange: e => setDeptoForm(f => ({ ...f, descripcion: e.target.value })), style: { ...S.input, flex: 1, minWidth: 160 } }), h("button", { onClick: addDepto, style: S.btn("#16a34a", "#fff") }, "+ Agregar")) : null,
-        (departamentos || []).length === 0 ? h("p", { style: { color: "#999", fontSize: 13 } }, "Sin departamentos a\xfan.") : (departamentos || []).map(d => h("div", { key: d.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #FAF6F1" } }, h("div", null, h("b", null, d.nombre), d.descripcion ? h("span", { style: { color: "#888", fontSize: 12 } }, " \u00b7 " + d.descripcion) : null), (canDelete || esAdmin) ? h("button", { onClick: () => delDepto(d), style: { ...S.btn("#fee2e2", "#dc2626"), fontSize: 11, padding: "3px 8px" } }, "Eliminar") : null))) :
+        (departamentos || []).length === 0 ? h("p", { style: { color: "#999", fontSize: 13 } }, "Sin departamentos a\xfan.") : (departamentos || []).map(d => h("div", { key: d.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #FAFAF9" } }, h("div", null, h("b", null, d.nombre), d.descripcion ? h("span", { style: { color: "#888", fontSize: 12 } }, " \u00b7 " + d.descripcion) : null), (canDelete || esAdmin) ? h("button", { onClick: () => delDepto(d), style: { ...S.btn("#fee2e2", "#dc2626"), fontSize: 11, padding: "3px 8px" } }, "Eliminar") : null))) :
         h("div", { style: S2.card },
         (canCreate || esAdmin) ? h("div", { style: { display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" } }, h("input", { placeholder: "Nombre del puesto", value: puestoForm.nombre, onChange: e => setPuestoForm(f => ({ ...f, nombre: e.target.value })), style: { ...S.input, flex: 1, minWidth: 160 } }), h("select", { value: puestoForm.departamentoId, onChange: e => setPuestoForm(f => ({ ...f, departamentoId: e.target.value })), style: { ...S.select, flex: 1, minWidth: 160 } }, h("option", { value: "" }, "\u2014 Depto. (opcional) \u2014"), (departamentos || []).map(d => h("option", { key: d.id, value: d.id }, d.nombre))), h("button", { onClick: addPuesto, style: S.btn("#16a34a", "#fff") }, "+ Agregar")) : null,
-        (puestos || []).length === 0 ? h("p", { style: { color: "#999", fontSize: 13 } }, "Sin puestos a\xfan.") : (puestos || []).map(pp => h("div", { key: pp.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #FAF6F1" } }, h("div", null, h("b", null, pp.nombre), pp.departamentoId ? h("span", { style: { color: "#888", fontSize: 12 } }, " \u00b7 " + nombreDepto(pp.departamentoId)) : null), (canDelete || esAdmin) ? h("button", { onClick: () => delPuesto(pp), style: { ...S.btn("#fee2e2", "#dc2626"), fontSize: 11, padding: "3px 8px" } }, "Eliminar") : null))));
+        (puestos || []).length === 0 ? h("p", { style: { color: "#999", fontSize: 13 } }, "Sin puestos a\xfan.") : (puestos || []).map(pp => h("div", { key: pp.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #FAFAF9" } }, h("div", null, h("b", null, pp.nombre), pp.departamentoId ? h("span", { style: { color: "#888", fontSize: 12 } }, " \u00b7 " + nombreDepto(pp.departamentoId)) : null), (canDelete || esAdmin) ? h("button", { onClick: () => delPuesto(pp), style: { ...S.btn("#fee2e2", "#dc2626"), fontSize: 11, padding: "3px 8px" } }, "Eliminar") : null))));
   }
 
   // ----- FORM (alta/edición de persona) -----
@@ -714,7 +714,7 @@ function ModuloUsuarios({ currentUser, esAdmin = false, empleados = [], saveEmpl
     const grid = kids => h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, kids);
     const puedeGuardar = esAdmin || canCreate || canEdit;
     return h("div", { style: { padding: 20, maxWidth: 820, margin: "0 auto" } },
-      h("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 16 } }, h("button", { onClick: () => { setForm(blank); setView("list"); }, style: S.btn("#FAF6F1", "#555") }, "\u2190 Volver"), h("h2", { style: { margin: 0, fontSize: 17, fontWeight: 800 } }, form._modo === "nuevo" ? "Nueva persona" : "Editar persona")), banner,
+      h("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 16 } }, h("button", { onClick: () => { setForm(blank); setView("list"); }, style: S.btn("#FAFAF9", "#555") }, "\u2190 Volver"), h("h2", { style: { margin: 0, fontSize: 17, fontWeight: 800 } }, form._modo === "nuevo" ? "Nueva persona" : "Editar persona")), banner,
       h("div", { style: S2.card },
         h("h3", { style: { margin: "0 0 12px", fontSize: 14, color: "#1a1a2e" } }, "Datos de la persona"),
         grid([field("Nombre *", inp("nombre")), field("Apellidos", inp("apellidos"))]),
@@ -736,12 +736,12 @@ function ModuloUsuarios({ currentUser, esAdmin = false, empleados = [], saveEmpl
             field("Rol", h("select", { value: form.rol, onChange: e => fSet("rol", e.target.value), style: S.select }, ["usuario", "admin"].map(o => h("option", { key: o, value: o }, o === "admin" ? "Administrador" : "Usuario"))))
           ]) : h("p", { style: { fontSize: 12, color: "#888" } }, "Esta persona quedar\u00e1 registrada solo para RH/comisiones/biom\u00e9trico, sin poder iniciar sesi\u00f3n."),
           (form._modo === "usuario" && !form._empId && empsLibres.length) ? h("div", { style: { marginTop: 10, padding: "8px 12px", background: "#fff7ed", borderRadius: 8 } }, h("div", { style: { fontSize: 12, color: "#9a3412", marginBottom: 6 } }, "Hay fichas de personal sin vincular. Si esta cuenta corresponde a una de ellas (p. ej. registrada con otro correo), v\u00edncula aqu\u00ed para conservar sus datos y comisiones:"), h("div", { style: { display: "flex", gap: 8 } }, h("select", { value: form.vincularEmpId, onChange: e => fSet("vincularEmpId", e.target.value), style: { ...S.select, flex: 1 } }, h("option", { value: "" }, "\u2014 Seleccionar ficha existente \u2014"), empsLibres.map(e => h("option", { key: e.id, value: e.id }, (e.nombre || "") + " " + (e.apellidos || "") + (e.email ? (" \u00b7 " + e.email) : "")))), h("button", { onClick: () => { vincular({ id: form._userId }, form.vincularEmpId); setMsg({ tipo: "ok", txt: "Ficha vinculada. Vuelve a abrir la persona para ver y editar sus datos." }); }, disabled: !form.vincularEmpId, style: S.btn("#7c3aed", "#fff") }, "Vincular"))) : null)),
-      h("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8 } }, h("button", { onClick: () => { setForm(blank); setView("list"); }, style: S.btn("#FAF6F1", "#555") }, "Cancelar"), puedeGuardar ? h("button", { onClick: guardarPersona, disabled: saving, style: { background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 800, cursor: "pointer" } }, saving ? "Guardando..." : "\ud83d\udcbe Guardar") : h("span", { style: { fontSize: 12, color: "#aaa" } }, "Sin permiso para guardar")));
+      h("div", { style: { display: "flex", justifyContent: "flex-end", gap: 8 } }, h("button", { onClick: () => { setForm(blank); setView("list"); }, style: S.btn("#FAFAF9", "#555") }, "Cancelar"), puedeGuardar ? h("button", { onClick: guardarPersona, disabled: saving, style: { background: "#16a34a", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontWeight: 800, cursor: "pointer" } }, saving ? "Guardando..." : "\ud83d\udcbe Guardar") : h("span", { style: { fontSize: 12, color: "#aaa" } }, "Sin permiso para guardar")));
   }
 
   // ----- LIST -----
   return h("div", { style: { padding: 20, maxWidth: 1100, margin: "0 auto" } },
-    h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 6 } }, h("h2", { style: { margin: 0, fontSize: 18, fontWeight: 800 } }, "\ud83d\udc65 Usuarios y personal"), h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } }, h("button", { onClick: () => setView("catalogos"), style: S.btn("#FAF6F1", "#555") }, "\ud83d\uddc2\ufe0f Cat\u00e1logos"), (canCreate || canEdit || esAdmin) ? h("button", { onClick: abrirNuevo, style: S.btn("#F97316", "#1a1a2e") }, "+ Nueva persona") : null)),
+    h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 6 } }, h("h2", { style: { margin: 0, fontSize: 18, fontWeight: 800 } }, "\ud83d\udc65 Usuarios y personal"), h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } }, h("button", { onClick: () => setView("catalogos"), style: S.btn("#FAFAF9", "#555") }, "\ud83d\uddc2\ufe0f Cat\u00e1logos"), (canCreate || canEdit || esAdmin) ? h("button", { onClick: abrirNuevo, style: S.btn("#F97316", "#1a1a2e") }, "+ Nueva persona") : null)),
     h("p", { style: { fontSize: 12, color: "#888", margin: "0 0 12px" } }, "Una sola alta para cada persona: datos de RH, comisiones y, si corresponde, acceso al sistema."),
     banner,
     h("input", { placeholder: "Buscar por nombre, correo, puesto...", value: search, onChange: e => setSearch(e.target.value), style: { ...S.input, marginBottom: 14, maxWidth: 360 } }),
@@ -751,16 +751,16 @@ function ModuloUsuarios({ currentUser, esAdmin = false, empleados = [], saveEmpl
       h("tbody", null, filasF.length === 0 ? h("tr", null, h("td", { colSpan: 6, style: { ...S2.td, color: "#999", textAlign: "center" } }, "Sin resultados.")) : filasF.map((f, i) => {
         const u = f.u, e = f.e || {};
         const nombreCompleto = (e.nombre || (u ? u.nombre : "") || "") + (e.apellidos ? (" " + e.apellidos) : "");
-        return h("tr", { key: (u ? "u" + u.id : "e" + e.id), style: { background: i % 2 === 0 ? "#fff" : "#fafaf8" } },
+        return h("tr", { key: (u ? "u" + u.id : "e" + e.id), style: { background: i % 2 === 0 ? "#fff" : "#FFFFFF" } },
           h("td", { style: S2.td }, h("b", null, nombreCompleto || "(sin nombre)"), (u && u.email) || e.email ? h("div", { style: { fontSize: 11, color: "#999" } }, (u && u.email) || e.email) : null),
           h("td", { style: S2.td }, (nombrePuesto(e.puestoId) || "\u2014") + (e.departamentoId ? (" \u00b7 " + nombreDepto(e.departamentoId)) : "")),
           h("td", { style: S2.td }, u ? h("span", { style: { fontSize: 11, fontWeight: 700, color: u.rol === "admin" ? "#7c3aed" : "#0ea5e9" } }, u.rol === "admin" ? "Administrador" : "Usuario") : h("span", { style: { fontSize: 11, color: "#999" } }, "Sin acceso")),
           h("td", { style: S2.td }, e.esVendedor ? h("span", { style: { color: "#16a34a", fontWeight: 700 } }, "\u2713 " + (e.comisionDefault || 0) + "%") : "\u2014"),
           h("td", { style: S2.td }, h("span", { style: { fontSize: 11, fontWeight: 700, color: ((u ? u.activo : e.activo !== false)) ? "#16a34a" : "#dc2626" } }, ((u ? u.activo : e.activo !== false)) ? "Activo" : "Inactivo")),
           h("td", { style: S2.td }, h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
-            (canEdit || canCreate || esAdmin) ? h("button", { onClick: () => abrirEditar(f), style: { ...S.btn("#FAF6F1", "#555"), fontSize: 11, padding: "4px 10px" } }, "\u270f\ufe0f Editar") : null,
+            (canEdit || canCreate || esAdmin) ? h("button", { onClick: () => abrirEditar(f), style: { ...S.btn("#FAFAF9", "#555"), fontSize: 11, padding: "4px 10px" } }, "\u270f\ufe0f Editar") : null,
             (u && esAdmin) ? h("button", { onClick: () => { setSelected(u); setPermEdit(u.permisos || {}); setView("permisos"); }, style: { ...S.btn("#ede9fe", "#7c3aed"), fontSize: 11, padding: "4px 10px" } }, "\ud83d\udd11 Permisos") : null,
-            (u && esAdmin) ? h("button", { onClick: () => toggleActivo(u), style: { ...S.btn("#FAF6F1", "#555"), fontSize: 11, padding: "4px 10px" } }, u.activo ? "Desactivar" : "Activar") : null,
+            (u && esAdmin) ? h("button", { onClick: () => toggleActivo(u), style: { ...S.btn("#FAFAF9", "#555"), fontSize: 11, padding: "4px 10px" } }, u.activo ? "Desactivar" : "Activar") : null,
             (!u && (canDelete || esAdmin)) ? h("button", { onClick: () => borrarEmpleadoSinAcceso(e), style: { ...S.btn("#fee2e2", "#dc2626"), fontSize: 11, padding: "4px 10px" } }, "Eliminar") : null)));
       })))));
 }
@@ -900,7 +900,7 @@ function ModuloAuditoria({
       alignItems: "center",
       gap: 12,
       padding: "12px 16px",
-      borderBottom: "1px solid #FAF6F1",
+      borderBottom: "1px solid #FAFAF9",
       flexWrap: "wrap"
     }
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -950,7 +950,7 @@ function ModuloAuditoria({
     key: b.id,
     style: {
       padding: "10px 16px",
-      borderBottom: "1px solid #FAF6F1",
+      borderBottom: "1px solid #FAFAF9",
       fontSize: 13,
       lineHeight: 1.5
     }
@@ -1016,7 +1016,7 @@ function ModuloAuditoria({
     }
   }, "\uD83D\uDEE1\uFE0F Auditor\u00EDa"), /*#__PURE__*/React.createElement("button", {
     onClick: cargar,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u21BB Actualizar")), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
@@ -1045,7 +1045,7 @@ function ModuloAuditoria({
         /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", { style: { fontSize: 14, color: "#1a1a2e" } }, "\uD83D\uDCBE " + rp.key.replace("fipsa-backup-", "")), /*#__PURE__*/React.createElement("span", { style: { fontSize: 12, color: "#888", marginLeft: 8 } }, (rp.autor ? "creado al entrar " + rp.autor : "") + (rp.fecha ? " \u00b7 " + fechaHora(rp.fecha) : ""))),
         /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: "#aaa" } }, rp.modulos.length + " m\u00f3dulos")),
       /*#__PURE__*/React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 6 } },
-        rp.modulos.map(m => /*#__PURE__*/React.createElement("div", { key: m.k, style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fafaf8", borderRadius: 8, fontSize: 12 } },
+        rp.modulos.map(m => /*#__PURE__*/React.createElement("div", { key: m.k, style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, padding: "6px 10px", background: "#FFFFFF", borderRadius: 8, fontSize: 12 } },
           /*#__PURE__*/React.createElement("span", { style: { color: "#444", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, m.k.replace("fipsa-", "") + (m.n != null ? " \u00b7 " + m.n + " reg." : "")),
           /*#__PURE__*/React.createElement("button", { onClick: () => restaurarRespaldo(rp.key, m.k), style: { ...S.btn("#fff7ed", "#9a3412"), fontSize: 11, padding: "3px 10px", flexShrink: 0 } }, "Restaurar")))))) ) : tab === "papelera" ? /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1073,7 +1073,7 @@ function ModuloAuditoria({
       padding: "6px 14px",
       borderRadius: 20,
       border: "2px solid " + (filtroAccion === f ? "#F97316" : "#e0e0e0"),
-      background: filtroAccion === f ? "#FAF6F1" : "#fff",
+      background: filtroAccion === f ? "#FAFAF9" : "#fff",
       color: filtroAccion === f ? "#1a1a2e" : "#888",
       fontWeight: filtroAccion === f ? 700 : 400,
       fontSize: 12,
@@ -1602,7 +1602,7 @@ function FipsaApp({
     className: navAbierto ? "app-nav open" : "app-nav",
     style: {
       width: 210,
-      background: "#9A3412",
+      background: "#1C1917",
       display: "flex",
       flexDirection: "column",
       flexShrink: 0
@@ -1622,14 +1622,14 @@ function FipsaApp({
     style: {
       width: 34,
       height: 34,
-      background: "#ffffff",
+      background: "#F97316",
       borderRadius: 7,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       fontWeight: 900,
       fontSize: 18,
-      color: "#9A3412"
+      color: "#ffffff"
     }
   }, "F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1660,8 +1660,8 @@ function FipsaApp({
       padding: "10px 12px",
       borderRadius: 8,
       border: "none",
-      background: modulo === n.id ? "rgba(255,255,255,0.16)" : "transparent",
-      color: modulo === n.id ? "#ffffff" : "#FADBC6",
+      background: modulo === n.id ? "#F97316" : "transparent",
+      color: modulo === n.id ? "#ffffff" : "#A8A29E",
       fontWeight: modulo === n.id ? 700 : 400,
       fontSize: 13,
       cursor: "pointer",
@@ -1708,7 +1708,7 @@ function FipsaApp({
   }, "\u26A0\uFE0F"), n.id === "compras" && reqPendientes > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       marginLeft: "auto",
-      background: "#C2410C",
+      background: "#EA580C",
       color: "#fff",
       borderRadius: 20,
       padding: "1px 7px",
@@ -1774,9 +1774,7 @@ function FipsaApp({
   }, "\uD83D\uDEAA Cerrar sesi\xF3n"))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "10px 16px",
-      borderTop: "1px solid #2d2d4e",
-      fontSize: 11,
-      color: "#444"
+      borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 11, color: "#A8A29E"
     }
   }, "v2.0 \xB7 FIPSA Sistema")), /*#__PURE__*/React.createElement("div", {
     className: "app-main",
@@ -2181,7 +2179,7 @@ function Dashboard({
   const alertRow = (key, icono, texto, detalle, color, onClick) => /*#__PURE__*/React.createElement("div", {
     key: key,
     onClick: onClick,
-    style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "#fafaf8", marginBottom: 6, cursor: "pointer", borderLeft: `3px solid ${color}` }
+    style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "#FFFFFF", marginBottom: 6, cursor: "pointer", borderLeft: `3px solid ${color}` }
   }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 16 } }, icono),
     /*#__PURE__*/React.createElement("div", { style: { flex: 1, minWidth: 0 } },
       /*#__PURE__*/React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, texto),
@@ -2211,20 +2209,20 @@ function Dashboard({
     [can("pedidos") || can("cotizaciones"), avisoCard("Cotizaciones aprobadas \u2014 gestionar pedido", "#7c3aed", "\uD83D\uDCC4", cotsAceptadasSinPedido.slice(0, 6).map(c => alertRow("ca-" + c.id, "\uD83D\uDCC4", `${c.folio} \u00b7 ${clienteNom(c.clienteId)}`, withProd(productoCot(c), "Aprobada \u2014 gestionar pedido formal del cliente"), "#7c3aed", () => can("cotizaciones") ? setModulo("cotizaciones", c.id) : setModulo("pedidos")))), cotsAceptadasSinPedido.length],
     [can("produccion"), avisoCard("Pedidos por generar OP", "#0ea5e9", "\uD83C\uDFED", pedidosSinOP.slice(0, 6).map(p => alertRow("sop-" + p.id, "\uD83C\uDFED", `${folioPed(p)} \u00b7 ${clienteNom(p.clienteId)}`, conProd(p, "Sin orden de producci\u00f3n \u2014 generar OP"), "#0ea5e9", () => setModulo("pedidos", p.id)))), pedidosSinOP.length],
     [can("cobranza") || can("pedidos"), avisoCard("Documentos de facturaci\u00f3n pendientes", "#0ea5e9", "\uD83E\uDDFE", avisosProd.slice(0, 6).map(op => alertRow("avp-" + op.id, "\uD83E\uDDFE", `${op.produccionFinal && op.produccionFinal.folio || "DF"} \u00b7 ${op.folio || "OP"} \u00b7 ${clienteNom(op.clienteId)}`, withProd(productoOP(op), `Terminada: ${(parseInt(op.produccionFinal && op.produccionFinal.cantidad) || 0).toLocaleString("es-MX")} pzas \u2014 sin factura`), "#0ea5e9", () => setModulo("produccion", op.id)))), avisosProd.length],
-    [can("pedidos"), avisoCard("Entregas pr\u00f3ximas / vencidas", "#dc2626", "\uD83D\uDE9B", entregasAlerta.slice(0, 6).map(e => alertRow("ent-" + e.p.id, e.vencida ? "\u26A0\uFE0F" : "\uD83D\uDCC5", `${folioPed(e.p)} \u00b7 ${clienteNom(e.p.clienteId)}`, conProd(e.p, e.vencida ? `Venci\u00f3 ${displayDate(e.fc)}` : `Entrega ${displayDate(e.fc)}`), e.vencida ? "#dc2626" : "#C2410C", () => setModulo("pedidos", e.p.id)))), entregasAlerta.length],
-    [can("pedidos"), avisoCard("Pedidos con requisitos pendientes", "#C2410C", "\uD83D\uDEA7", pedidosFrenados.slice(0, 6).map(p => alertRow("fre-" + p.id, "\uD83D\uDEA7", `${folioPed(p)} \u00b7 ${clienteNom(p.clienteId)}`, conProd(p, "Falta confirmaci\u00f3n o printcard"), "#C2410C", () => setModulo("pedidos", p.id)))), pedidosFrenados.length],
-    [can("compras"), avisoCard("Requisiciones pendientes", "#C2410C", "\uD83D\uDCCB", reqPendientesArr.slice(0, 6).map(r => alertRow("req-" + r.id, "\uD83D\uDCCB", `${r.folio || r.numero || "Requisici\u00f3n #" + r.id}`, "Pendiente \u2014 generar orden de compra", "#C2410C", () => setModulo("requisiciones", r.id)))), reqPendientesArr.length],
-    [can("cotizaciones"), avisoCard("Cotizaciones por vencer", "#C2410C", "\u23F3", cotsPorVencer.slice(0, 6).map(c => alertRow("cot-" + c.id, "\uD83D\uDCC4", `${c.folio} \u00b7 ${clienteNom(c.clienteId)}`, withProd(productoCot(c), `Vigencia hasta ${displayDate(c.vigencia)}`), "#C2410C", () => setModulo("cotizaciones", c.id)))), cotsPorVencer.length],
+    [can("pedidos"), avisoCard("Entregas pr\u00f3ximas / vencidas", "#dc2626", "\uD83D\uDE9B", entregasAlerta.slice(0, 6).map(e => alertRow("ent-" + e.p.id, e.vencida ? "\u26A0\uFE0F" : "\uD83D\uDCC5", `${folioPed(e.p)} \u00b7 ${clienteNom(e.p.clienteId)}`, conProd(e.p, e.vencida ? `Venci\u00f3 ${displayDate(e.fc)}` : `Entrega ${displayDate(e.fc)}`), e.vencida ? "#dc2626" : "#EA580C", () => setModulo("pedidos", e.p.id)))), entregasAlerta.length],
+    [can("pedidos"), avisoCard("Pedidos con requisitos pendientes", "#EA580C", "\uD83D\uDEA7", pedidosFrenados.slice(0, 6).map(p => alertRow("fre-" + p.id, "\uD83D\uDEA7", `${folioPed(p)} \u00b7 ${clienteNom(p.clienteId)}`, conProd(p, "Falta confirmaci\u00f3n o printcard"), "#EA580C", () => setModulo("pedidos", p.id)))), pedidosFrenados.length],
+    [can("compras"), avisoCard("Requisiciones pendientes", "#EA580C", "\uD83D\uDCCB", reqPendientesArr.slice(0, 6).map(r => alertRow("req-" + r.id, "\uD83D\uDCCB", `${r.folio || r.numero || "Requisici\u00f3n #" + r.id}`, "Pendiente \u2014 generar orden de compra", "#EA580C", () => setModulo("requisiciones", r.id)))), reqPendientesArr.length],
+    [can("cotizaciones"), avisoCard("Cotizaciones por vencer", "#EA580C", "\u23F3", cotsPorVencer.slice(0, 6).map(c => alertRow("cot-" + c.id, "\uD83D\uDCC4", `${c.folio} \u00b7 ${clienteNom(c.clienteId)}`, withProd(productoCot(c), `Vigencia hasta ${displayDate(c.vigencia)}`), "#EA580C", () => setModulo("cotizaciones", c.id)))), cotsPorVencer.length],
     [can("cobranza"), avisoCard("Facturas vencidas", "#dc2626", "\uD83D\uDCB8", facsVencidas.slice(0, 6).map(f => alertRow("fac-" + f.id, "\uD83D\uDCB8", `${f.folio || "Factura"} \u00b7 ${clienteNom(f.clienteId)}`, `Venci\u00f3 ${displayDate(f.fechaVencimiento)} \u00b7 ${fmt((parseFloat(f.total) || 0) - cobrosDeFactura(f))}`, "#dc2626", () => setModulo("cobranza", f.id)))), facsVencidas.length],
     [can("compras"), avisoCard("Facturas de proveedor vencidas \u2014 por pagar", "#dc2626", "\uD83D\uDCB3", facCompraVencidas.slice(0, 6).map(f => alertRow("fcv-" + f.id, "\uD83D\uDCB3", `${f.folio || "Factura"} \u00b7 ${provNom(f.proveedorId)}`, `Venci\u00f3 ${displayDate(f.vencimiento)} \u00b7 saldo ${fmt((parseFloat(f.total) || 0) - aplicadoFactura(f))}`, "#dc2626", () => setModulo("compras")))), facCompraVencidas.length],
-    [can("produccion"), avisoCard("\u00D3rdenes de producci\u00f3n sin producto", "#C2410C", "\u26A0\uFE0F", opSinProducto.slice(0, 6).map(op => alertRow("opsp-" + op.id, "\u26A0\uFE0F", `${op.folio || "OP"} \u00b7 ${clienteNom(op.clienteId)}`, "Falta asignar el producto \u2014 editar la OP", "#C2410C", () => setModulo("produccion", op.id)))), opSinProducto.length]
+    [can("produccion"), avisoCard("\u00D3rdenes de producci\u00f3n sin producto", "#EA580C", "\u26A0\uFE0F", opSinProducto.slice(0, 6).map(op => alertRow("opsp-" + op.id, "\u26A0\uFE0F", `${op.folio || "OP"} \u00b7 ${clienteNom(op.clienteId)}`, "Falta asignar el producto \u2014 editar la OP", "#EA580C", () => setModulo("produccion", op.id)))), opSinProducto.length]
   ];
   const avisoCards = avisoDefs.filter(d => d[0] && d[1]).map(d => d[1]);
   const totalAvisos = avisoDefs.reduce((s, d) => s + (d[0] ? d[2] : 0), 0);
   const kpis = [
     can("cobranza") && kpiCard("Ventas del mes", fmt(ventasMes), "#16a34a", /*#__PURE__*/React.createElement("span", { style: { color: variacionVentas >= 0 ? "#16a34a" : "#dc2626", fontWeight: 700 } }, variacionVentas >= 0 ? "\u2191" : "\u2193", " ", Math.abs(variacionVentas), "% vs mes anterior")),
     can("cobranza") && kpiCard("Por cobrar", fmt(porCobrar), "#2563eb", vencido > 0 ? /*#__PURE__*/React.createElement("span", { style: { color: "#dc2626", fontWeight: 700 } }, fmt(vencido), " vencido") : /*#__PURE__*/React.createElement("span", { style: { color: "#16a34a", fontWeight: 700 } }, "Sin vencidos"), () => setModulo("cobranza")),
-    can("compras") && kpiCard("Por pagar (proveedores)", fmt(porPagar), "#C2410C", null, () => setModulo("compras")),
+    can("compras") && kpiCard("Por pagar (proveedores)", fmt(porPagar), "#EA580C", null, () => setModulo("compras")),
     (can("cobranza") || can("compras")) && kpiCard("Posici\u00f3n neta", fmt(posicionNeta), posicionNeta >= 0 ? "#16a34a" : "#dc2626", /*#__PURE__*/React.createElement("span", { style: { color: "#888" } }, "Por cobrar \u2212 por pagar")),
     can("pedidos") && kpiCard("Pedidos activos", String(pedidos.filter(p => !["Entregado", "Cerrado", "Cancelado"].includes(p.estado)).length), "#7c3aed", null, () => setModulo("pedidos")),
     can("produccion") && kpiCard("OPs en proceso", String((ordenesProduccion || []).filter(op => op.estado === "En proceso").length), "#0ea5e9", null, () => setModulo("produccion"))
@@ -2264,13 +2262,13 @@ function Dashboard({
       }, /*#__PURE__*/React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 } },
           /*#__PURE__*/React.createElement("span", { style: { color: "#555", fontWeight: 600 } }, item[0]),
           /*#__PURE__*/React.createElement("span", { style: { color: "#1a1a2e", fontWeight: 800 } }, item[1])),
-        /*#__PURE__*/React.createElement("div", { style: { height: 8, background: "#FAF6F1", borderRadius: 4, overflow: "hidden" } },
+        /*#__PURE__*/React.createElement("div", { style: { height: 8, background: "#FAFAF9", borderRadius: 4, overflow: "hidden" } },
           /*#__PURE__*/React.createElement("div", { style: { height: "100%", width: `${totalCot > 0 ? item[1] / totalCot * 100 : 0}%`, background: item[2], borderRadius: 4 } })))),
       /*#__PURE__*/React.createElement("div", { style: { marginTop: 14, padding: 12, background: "#f0fdf4", borderRadius: 8, textAlign: "center" } },
         /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: "#888", fontWeight: 700 } }, "TASA DE CONVERSI\u00d3N"),
         /*#__PURE__*/React.createElement("div", { style: { fontSize: 26, fontWeight: 900, color: "#16a34a" } }, tasaConv, "%")))));
 }
-function totalAlertasColor(n) { return n === 0 ? "#16a34a" : n <= 3 ? "#C2410C" : "#dc2626"; }
+function totalAlertasColor(n) { return n === 0 ? "#16a34a" : n <= 3 ? "#EA580C" : "#dc2626"; }
 function BusquedaGlobal({
   q = "",
   clientes = [],
@@ -2293,7 +2291,7 @@ function BusquedaGlobal({
   const provNom = id => { const p = proveedores.find(x => String(x.id) === String(id)); return p ? (p.razonSocial || p.nombre || p.empresa || "") : ""; };
   const hit = (...vals) => vals.some(v => String(v == null ? "" : v).toLowerCase().includes(query));
   const LIM = 8;
-  const card = { background: "#fff", borderRadius: 12, border: "1px solid #FAF6F1", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" };
+  const card = { background: "#fff", borderRadius: 12, border: "1px solid #FAFAF9", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" };
   const cats = [
     { mod: "clientes", titulo: "Clientes", icono: "\uD83D\uDC65", color: "#2563eb", deep: false,
       items: clientes.filter(c => hit(c.empresa, c.nombre, c.rfc, c.contacto, c.correo, c.telefono)).map(c => ({ id: c.id, titulo: c.empresa || c.nombre || "Cliente", sub: [c.rfc, c.contacto].filter(Boolean).join(" \u00b7 ") })) },
@@ -2303,7 +2301,7 @@ function BusquedaGlobal({
       items: pedidos.filter(p => hit(p.folioPropioFIPSA, p.folioCliente, cliNom(p.clienteId), p.partidas && p.partidas[0] && p.partidas[0].descripcion, p.notas)).map(p => ({ id: p.id, titulo: (p.folioPropioFIPSA || "Pedido") + " \u00b7 " + cliNom(p.clienteId), sub: (p.partidas && p.partidas[0] && p.partidas[0].descripcion) || p.estado || "" })) },
     { mod: "produccion", titulo: "\u00D3rdenes de producci\u00f3n", icono: "\uD83C\uDFED", color: "#0ea5e9", deep: true,
       items: ordenesProduccion.filter(o => hit(o.folio, o.pedidoFolio, cliNom(o.clienteId))).map(o => ({ id: o.id, titulo: (o.folio || "OP") + " \u00b7 " + cliNom(o.clienteId), sub: o.estado || "" })) },
-    { mod: "requisiciones", titulo: "Requisiciones", icono: "\uD83D\uDCCB", color: "#C2410C", deep: true,
+    { mod: "requisiciones", titulo: "Requisiciones", icono: "\uD83D\uDCCB", color: "#EA580C", deep: true,
       items: requisiciones.filter(r => hit(r.folio, r.numero, cliNom(r.clienteId))).map(r => ({ id: r.id, titulo: r.folio || r.numero || ("Req #" + r.id), sub: r.estado || "" })) },
     { mod: "compras", titulo: "\u00D3rdenes de compra", icono: "\uD83D\uDED2", color: "#16a34a", deep: false,
       items: ordenes.filter(o => hit(o.folio, provNom(o.proveedorId), o.proveedorNombre, o.facturaProveedor)).map(o => ({ id: o.id, titulo: (o.folio || "OC") + " \u00b7 " + (provNom(o.proveedorId) || o.proveedorNombre || ""), sub: o.estado || "" })) },
@@ -2332,7 +2330,7 @@ function BusquedaGlobal({
     totalRes === 0
       ? /*#__PURE__*/React.createElement("div", { style: { ...card, padding: 32, textAlign: "center", color: "#888" } }, "No se encontraron coincidencias. Prueba con otra palabra.")
       : /*#__PURE__*/React.createElement("div", { style: { display: "grid", gap: 16 } }, cats.map(c => /*#__PURE__*/React.createElement("div", { key: c.mod, style: { ...card, overflow: "hidden", borderTop: "3px solid " + c.color } },
-          /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", fontWeight: 800, fontSize: 14, color: c.color, borderBottom: "1px solid #FAF6F1" } }, /*#__PURE__*/React.createElement("span", null, c.icono), c.titulo, /*#__PURE__*/React.createElement("span", { style: { marginLeft: "auto", background: c.color, color: "#fff", borderRadius: 12, padding: "1px 9px", fontSize: 12 } }, c.items.length)),
+          /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", fontWeight: 800, fontSize: 14, color: c.color, borderBottom: "1px solid #FAFAF9" } }, /*#__PURE__*/React.createElement("span", null, c.icono), c.titulo, /*#__PURE__*/React.createElement("span", { style: { marginLeft: "auto", background: c.color, color: "#fff", borderRadius: 12, padding: "1px 9px", fontSize: 12 } }, c.items.length)),
           c.items.slice(0, LIM).map(it => /*#__PURE__*/React.createElement("button", {
             key: c.mod + "-" + it.id,
             onClick: () => c.deep ? setModulo(c.mod, it.id) : setModulo(c.mod, null, (q || "").trim()),
@@ -2518,7 +2516,7 @@ function ModuloClientes({
     key: o,
     onClick: () => onChange(sel.includes(o) ? sel.filter(x => x !== o) : [...sel, o]),
     style: {
-      background: sel.includes(o) ? "#1a1a2e" : "#FAF6F1",
+      background: sel.includes(o) ? "#1a1a2e" : "#FAFAF9",
       color: sel.includes(o) ? "#F97316" : "#555",
       border: "none",
       borderRadius: 20,
@@ -2587,7 +2585,7 @@ function ModuloClientes({
         Nuevo: ["#6b7280", "#f3f4f6"],
         Frecuente: ["#16a34a", "#f0fdf4"],
         Inactivo: ["#dc2626", "#fee2e2"]
-      }[f]?.[1] || "#FAF6F1" : "#fff",
+      }[f]?.[1] || "#FAFAF9" : "#fff",
       color: filtro === f ? {
         Nuevo: ["#6b7280", "#f3f4f6"],
         Frecuente: ["#16a34a", "#f0fdf4"],
@@ -2688,8 +2686,8 @@ function ModuloClientes({
   }, "Sin clientes")), filtered.map((c, i) => /*#__PURE__*/React.createElement("tr", {
     key: c.id,
     style: {
-      background: i % 2 === 0 ? "#fff" : "#fafaf8",
-      borderBottom: "1px solid #FAF6F1",
+      background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+      borderBottom: "1px solid #FAFAF9",
       cursor: "pointer"
     },
     onClick: () => {
@@ -2750,7 +2748,7 @@ function ModuloClientes({
       openEdit(c);
     },
     style: {
-      ...S.btn("#FAF6F1", "#555"),
+      ...S.btn("#FAFAF9", "#555"),
       fontSize: 11
     }
   }, "\u270F\uFE0F Editar"))))))), viewMode === "grupos" && /*#__PURE__*/React.createElement("div", {
@@ -2776,7 +2774,7 @@ function ModuloClientes({
   }, fmt(g.facturado)), /*#__PURE__*/React.createElement("td", {
     style: { padding: "10px 12px", textAlign: "right", color: "#2563eb", whiteSpace: "nowrap" }
   }, fmt(g.cobrado)), /*#__PURE__*/React.createElement("td", {
-    style: { padding: "10px 12px", textAlign: "right", fontWeight: g.porCobrar > 0 ? 700 : 400, color: g.porCobrar > 0 ? "#C2410C" : "#888", whiteSpace: "nowrap" }
+    style: { padding: "10px 12px", textAlign: "right", fontWeight: g.porCobrar > 0 ? 700 : 400, color: g.porCobrar > 0 ? "#EA580C" : "#888", whiteSpace: "nowrap" }
   }, fmt(g.porCobrar)), /*#__PURE__*/React.createElement("td", {
     style: { padding: "10px 12px", textAlign: "center" }
   }, g.nPedidos), /*#__PURE__*/React.createElement("td", {
@@ -2865,7 +2863,7 @@ function ModuloClientes({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -3150,7 +3148,7 @@ function ModuloClientes({
     }
   }, "\u26A0\uFE0F ", error), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -3241,7 +3239,7 @@ function PrintcardCatalogo({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -3334,7 +3332,7 @@ function PrintcardCatalogo({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -3534,7 +3532,7 @@ function PrintcardCatalogo({
       fontSize: 12,
       color: "#555",
       marginBottom: 10,
-      borderTop: "1px solid #FAF6F1",
+      borderTop: "1px solid #FAFAF9",
       paddingTop: 6
     }
   }, pc.notas), /*#__PURE__*/React.createElement("div", {
@@ -3618,7 +3616,7 @@ function ModuloCatalogos({
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      borderBottom: "1px solid #FAF6F1"
+      borderBottom: "1px solid #FAFAF9"
     }
   }, /*#__PURE__*/React.createElement(Tab, {
     id: "productos",
@@ -3741,7 +3739,7 @@ function PrintCardField({
       border: '1px solid #e0e0e0',
       borderRadius: 10,
       padding: 16,
-      background: '#fafaf8',
+      background: '#FFFFFF',
       marginBottom: 16
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -4026,7 +4024,7 @@ function CatProductos({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -4153,7 +4151,7 @@ function CatProductos({
       padding: "9px 0",
       borderRadius: 8,
       border: `2px solid ${form.activo === o.v ? "#F97316" : "#e0e0e0"}`,
-      background: form.activo === o.v ? "#1a1a2e" : "#fafaf8",
+      background: form.activo === o.v ? "#1a1a2e" : "#FFFFFF",
       color: form.activo === o.v ? "#F97316" : "#888",
       fontWeight: 700,
       fontSize: 12,
@@ -4161,7 +4159,7 @@ function CatProductos({
     }
   }, o.l)))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 10,
       padding: 16,
@@ -4230,7 +4228,7 @@ function CatProductos({
       padding: "8px 0",
       borderRadius: 8,
       border: `2px solid ${form.colorPapel === c ? "#F97316" : "#e0e0e0"}`,
-      background: form.colorPapel === c ? "#1a1a2e" : "#fafaf8",
+      background: form.colorPapel === c ? "#1a1a2e" : "#FFFFFF",
       color: form.colorPapel === c ? "#F97316" : "#888",
       fontWeight: 700,
       fontSize: 12,
@@ -4332,7 +4330,7 @@ function CatProductos({
     }
   }, "\u26A0\uFE0F ", error), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -4516,8 +4514,8 @@ function CatProductos({
     return /*#__PURE__*/React.createElement("tr", {
       key: p.id,
       style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #FAF6F1",
+        background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+        borderBottom: "1px solid #FAFAF9",
         cursor: "pointer"
       },
       onClick: () => openEdit(p)
@@ -4588,7 +4586,7 @@ function CatProductos({
         openEdit(p);
       },
       style: {
-        ...S.btn("#FAF6F1", "#555"),
+        ...S.btn("#FAFAF9", "#555"),
         fontSize: 11
       }
     }, "\u270F\uFE0F")));
@@ -4662,7 +4660,7 @@ function CatProductos({
         fontWeight: 900,
         fontSize: 15,
         color: "#1a1a2e",
-        background: "#fafaf8",
+        background: "#FFFFFF",
         padding: "2px 10px",
         borderRadius: 6
       }
@@ -4831,7 +4829,7 @@ function CatMateriales({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -4945,7 +4943,7 @@ function CatMateriales({
     }
   }, "\u26A0\uFE0F ", error), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -4965,10 +4963,10 @@ function CatMateriales({
   }, /*#__PURE__*/React.createElement("div", {
     onClick: e => e.stopPropagation(),
     style: { background: "#fff", borderRadius: 12, padding: 24, maxWidth: 720, width: "100%", maxHeight: "85vh", overflowY: "auto" }
-  }, /*#__PURE__*/React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 } }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, fontSize: 16, color: "#1a1a2e" } }, "\uD83D\uDCCB Historial de compras"), /*#__PURE__*/React.createElement("div", { style: { fontSize: 13, color: "#888" } }, "[" + (histMat.claveFIPSA || "") + "] " + (histMat.descripcion || ""))), /*#__PURE__*/React.createElement("button", { onClick: () => setHistMat(null), style: { ...S.btn("#FAF6F1", "#555"), fontSize: 18, lineHeight: 1, padding: "2px 10px" } }, "\xD7")), (() => {
+  }, /*#__PURE__*/React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 } }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, fontSize: 16, color: "#1a1a2e" } }, "\uD83D\uDCCB Historial de compras"), /*#__PURE__*/React.createElement("div", { style: { fontSize: 13, color: "#888" } }, "[" + (histMat.claveFIPSA || "") + "] " + (histMat.descripcion || ""))), /*#__PURE__*/React.createElement("button", { onClick: () => setHistMat(null), style: { ...S.btn("#FAFAF9", "#555"), fontSize: 18, lineHeight: 1, padding: "2px 10px" } }, "\xD7")), (() => {
     const hh = historialDe(histMat);
     const totCant = hh.reduce((s, r) => s + r.cantidad, 0);
-    return hh.length === 0 ? /*#__PURE__*/React.createElement("div", { style: { padding: 24, textAlign: "center", color: "#aaa" } }, "Sin compras registradas para este material.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13 } }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", { style: { background: "#1a1a2e" } }, ["Fecha", "OC", "Proveedor", "Cantidad", "P. Unitario", "Importe"].map(c => /*#__PURE__*/React.createElement("th", { key: c, style: { padding: "8px 10px", color: "#F97316", textAlign: "left", fontSize: 11, textTransform: "uppercase" } }, c)))), /*#__PURE__*/React.createElement("tbody", null, hh.map((r, idx) => /*#__PURE__*/React.createElement("tr", { key: idx, style: { borderBottom: "1px solid #FAF6F1" } }, /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px", whiteSpace: "nowrap" } }, displayDate(r.fecha)), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px", fontFamily: "monospace", color: "#7c3aed" } }, r.folio), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px" } }, r.proveedor), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px" } }, r.cantidad.toLocaleString("es-MX") + " " + r.unidad), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px" } }, "$" + fmtN(r.precio)), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px", fontWeight: 700 } }, "$" + fmtN(r.cantidad * r.precio)))))), /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, fontSize: 12, color: "#666", textAlign: "right" } }, hh.length + " compra(s) \xB7 total acumulado: " + totCant.toLocaleString("es-MX") + " " + (hh[0] ? hh[0].unidad : "")));
+    return hh.length === 0 ? /*#__PURE__*/React.createElement("div", { style: { padding: 24, textAlign: "center", color: "#aaa" } }, "Sin compras registradas para este material.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13 } }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", { style: { background: "#1a1a2e" } }, ["Fecha", "OC", "Proveedor", "Cantidad", "P. Unitario", "Importe"].map(c => /*#__PURE__*/React.createElement("th", { key: c, style: { padding: "8px 10px", color: "#F97316", textAlign: "left", fontSize: 11, textTransform: "uppercase" } }, c)))), /*#__PURE__*/React.createElement("tbody", null, hh.map((r, idx) => /*#__PURE__*/React.createElement("tr", { key: idx, style: { borderBottom: "1px solid #FAFAF9" } }, /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px", whiteSpace: "nowrap" } }, displayDate(r.fecha)), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px", fontFamily: "monospace", color: "#7c3aed" } }, r.folio), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px" } }, r.proveedor), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px" } }, r.cantidad.toLocaleString("es-MX") + " " + r.unidad), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px" } }, "$" + fmtN(r.precio)), /*#__PURE__*/React.createElement("td", { style: { padding: "7px 10px", fontWeight: 700 } }, "$" + fmtN(r.cantidad * r.precio)))))), /*#__PURE__*/React.createElement("div", { style: { marginTop: 10, fontSize: 12, color: "#666", textAlign: "right" } }, hh.length + " compra(s) \xB7 total acumulado: " + totCant.toLocaleString("es-MX") + " " + (hh[0] ? hh[0].unidad : "")));
   })())), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -5068,8 +5066,8 @@ function CatMateriales({
   }).map((m, i) => /*#__PURE__*/React.createElement("tr", {
     key: m.id,
     style: {
-      background: i % 2 === 0 ? "#fff" : "#fafaf8",
-      borderBottom: "1px solid #FAF6F1",
+      background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+      borderBottom: "1px solid #FAFAF9",
       cursor: "pointer"
     },
     onClick: () => openEdit(m)
@@ -5126,7 +5124,7 @@ function CatMateriales({
       openEdit(m);
     },
     style: {
-      ...S.btn("#FAF6F1", "#555"),
+      ...S.btn("#FAFAF9", "#555"),
       fontSize: 11
     }
   }, "\u270F\uFE0F"))))))), viewMode === "lista" && /*#__PURE__*/React.createElement(React.Fragment, null, filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -5191,7 +5189,7 @@ function CatMateriales({
       fontWeight: 900,
       fontSize: 15,
       color: "#1a1a2e",
-      background: "#fafaf8",
+      background: "#FFFFFF",
       padding: "2px 10px",
       borderRadius: 6
     }
@@ -5260,7 +5258,7 @@ function CatHerramentales({
   const HER_ESTADOS = ["Activo", "Desgastado", "Baja"];
   const HER_EST_COLOR = {
     "Activo": "#16a34a",
-    "Desgastado": "#C2410C",
+    "Desgastado": "#EA580C",
     "Baja": "#9ca3af"
   };
   const [view, setView] = useState("list");
@@ -5459,7 +5457,7 @@ function CatHerramentales({
 // ══════════════════════════════════════════════════════════════════════════════
 /* ===== Módulo Cotizaciones (cotizador de cajas plegadizas) — FIPSA Plegadizos ===== */
 const CZ_CSS = `
-.cz-cot{--cz-ink:#16202B;--cz-muted:#5B6B7A;--cz-line:#E3E8EE;--cz-line2:#CBD5E1;--cz-kraft:#B45309;--cz-kraftsoft:#FBEFE2;--cz-res:#EA580C;--cz-ressoft:#FFF1E8;--cz-resink:#C2410C;--cz-comp:#F1F5F9;--cz-danger:#B91C1C;--cz-mono:ui-monospace,'JetBrains Mono',monospace;font-family:system-ui,'Inter',sans-serif;color:var(--cz-ink);font-size:14px;line-height:1.45}
+.cz-cot{--cz-ink:#1C1917;--cz-muted:#78716C;--cz-line:#E7E5E4;--cz-line2:#D6D3D1;--cz-kraft:#C2410C;--cz-kraftsoft:#FFEDD5;--cz-res:#EA580C;--cz-ressoft:#FFF1E8;--cz-resink:#C2410C;--cz-comp:#F5F5F4;--cz-danger:#B91C1C;--cz-mono:ui-monospace,'JetBrains Mono',monospace;font-family:system-ui,'Inter',sans-serif;color:var(--cz-ink);font-size:14px;line-height:1.45}
 .cz-cot *{box-sizing:border-box}
 .cz-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:24px}
 .cz-tbl{display:flex;align-items:baseline;gap:12px}
@@ -5479,7 +5477,7 @@ const CZ_CSS = `
 .cz-fld{display:flex;flex-direction:column;gap:6px}
 .cz-lab{font-size:11.5px;color:var(--cz-muted);font-weight:500;display:flex;justify-content:space-between;gap:6px}
 .cz-hint{font-family:var(--cz-mono);font-size:10px;color:var(--cz-kraft);font-weight:600}
-.cz-inp,.cz-sel{font-size:14px;color:var(--cz-ink);background:#fff;border:1px solid var(--cz-line2);border-radius:8px;padding:9px 12px;width:100%;outline:none}
+.cz-inp,.cz-sel{font-size:14px;color:var(--cz-ink);background:#fff;border:1px solid var(--cz-line2);border-radius:9px;padding:10px 12px;width:100%;outline:none}
 .cz-inp{font-family:var(--cz-mono);font-weight:500}
 .cz-text{font-family:inherit}
 .cz-sel{font-family:inherit;font-size:13px}
@@ -5488,7 +5486,7 @@ const CZ_CSS = `
 .cz-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 .cz-chip{font-family:var(--cz-mono);font-size:12px;background:var(--cz-comp);border:1px solid var(--cz-line);border-radius:7px;padding:6px 9px;display:flex;gap:7px;align-items:baseline}
 .cz-chip b{font-weight:600}.cz-chip span{color:var(--cz-muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
-.cz-chip.hi{background:var(--cz-ressoft);border-color:#FBD9C0}.cz-chip.hi b{color:var(--cz-resink)}
+.cz-chip.hi{background:var(--cz-ressoft);border-color:#FED7AA}.cz-chip.hi b{color:var(--cz-resink)}
 .cz-btn{font-weight:600;font-size:13px;border-radius:8px;padding:8px 14px;border:1px solid var(--cz-line2);background:#fff;color:var(--cz-ink);cursor:pointer}
 .cz-btn:hover{background:#F8FAFC}
 .cz-btn.primary{background:var(--cz-res);border-color:var(--cz-res);color:#fff}.cz-btn.primary:hover{background:var(--cz-resink)}
@@ -5509,7 +5507,7 @@ const CZ_CSS = `
 .cz-btart svg{width:100%;height:auto;display:block}
 @media(max-width:560px){.cz-boxtype{flex-direction:column}.cz-btart{width:100%;max-width:200px}}
 .cz-panel{position:sticky;top:14px}
-.cz-price{background:var(--cz-res);color:#fff;border-radius:14px;padding:20px 20px 18px;margin-bottom:18px}
+.cz-price{background:linear-gradient(135deg,#F97316,#EA580C);color:#fff;border-radius:16px;padding:22px 22px 20px;margin-bottom:18px}
 .cz-pe{font-family:var(--cz-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
 .cz-big{font-weight:700;font-size:30px;line-height:1.05;margin:4px 0 0}
 .cz-big small{font-size:13px;font-weight:600;opacity:.8}
@@ -7112,7 +7110,7 @@ function ModuloPedidos({
       padding: "7px 14px",
       borderRadius: 20,
       border: `2px solid ${filtro === f ? PED_COLOR[f]?.[0] || "#F97316" : "#e0e0e0"}`,
-      background: filtro === f ? PED_COLOR[f]?.[1] || "#FAF6F1" : "#fff",
+      background: filtro === f ? PED_COLOR[f]?.[1] || "#FAFAF9" : "#fff",
       color: filtro === f ? PED_COLOR[f]?.[0] || "#1a1a2e" : "#888",
       fontWeight: filtro === f ? 700 : 400,
       fontSize: 12,
@@ -7220,8 +7218,8 @@ function ModuloPedidos({
     return /*#__PURE__*/React.createElement("tr", {
       key: p.id,
       style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #FAF6F1"
+        background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("td", {
       style: {
@@ -7428,7 +7426,7 @@ function ModuloPedidos({
       }
     }, p.folioPropioFIPSA), p.folioCliente && /*#__PURE__*/React.createElement("span", {
       style: {
-        background: "#FAF6F1",
+        background: "#FAFAF9",
         color: "#555",
         borderRadius: 6,
         padding: "2px 8px",
@@ -7458,7 +7456,7 @@ function ModuloPedidos({
       style: {
         width: 80,
         height: 4,
-        background: "#FAF6F1",
+        background: "#FAFAF9",
         borderRadius: 2
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -7587,7 +7585,7 @@ function ModuloPedidos({
         display: "flex",
         justifyContent: "space-between",
         padding: "5px 0",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         fontSize: 13
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -7646,7 +7644,7 @@ function ModuloPedidos({
         display: "flex",
         justifyContent: "space-between",
         padding: "5px 0",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         fontSize: 13
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -7704,7 +7702,7 @@ function ModuloPedidos({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -7770,7 +7768,7 @@ function ModuloPedidos({
   }))), form.cotInfoRef && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 12,
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 10,
       padding: 14
@@ -8045,8 +8043,8 @@ function ModuloPedidos({
       gap: 8,
       padding: "9px 12px",
       borderRadius: 8,
-      border: `1.5px solid ${form.requisitos?.[key] ? "#16a34a" : "#C2410C"}`,
-      background: form.requisitos?.[key] ? "#f0fdf4" : "#fafaf8",
+      border: `1.5px solid ${form.requisitos?.[key] ? "#16a34a" : "#EA580C"}`,
+      background: form.requisitos?.[key] ? "#f0fdf4" : "#FFFFFF",
       cursor: "pointer",
       marginBottom: 4
     }
@@ -8057,7 +8055,7 @@ function ModuloPedidos({
       borderRadius: 5,
       flexShrink: 0,
       background: form.requisitos?.[key] ? "#16a34a" : "#fff",
-      border: `2px solid ${form.requisitos?.[key] ? "#16a34a" : "#C2410C"}`,
+      border: `2px solid ${form.requisitos?.[key] ? "#16a34a" : "#EA580C"}`,
       display: "flex",
       alignItems: "center",
       justifyContent: "center"
@@ -8105,7 +8103,7 @@ function ModuloPedidos({
   }, "+ Partida")), form.partidas.map((part, i) => /*#__PURE__*/React.createElement("div", {
     key: part.id || i,
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 10,
       padding: 14,
@@ -8246,7 +8244,7 @@ function ModuloPedidos({
     }
   }, "\u26A0\uFE0F Agrega descripci\xF3n a la partida"), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -8527,7 +8525,7 @@ function TabReq({
   }
 }, /*#__PURE__*/React.createElement("button", {
   onClick: back,
-  style: S.btn("#FAF6F1", "#555")
+  style: S.btn("#FAFAF9", "#555")
 }, "← Cancelar"), /*#__PURE__*/React.createElement("h2", {
   style: {
     margin: 0,
@@ -8594,7 +8592,7 @@ function TabReq({
 }, "+ Agregar lámina")), (form.laminas || []).map((l, i) => /*#__PURE__*/React.createElement("div", {
   key: l.id || i,
   style: {
-    background: "#fafaf8",
+    background: "#FFFFFF",
     border: "1px solid #e8e7e0",
     borderRadius: 10,
     padding: 14,
@@ -8778,7 +8776,7 @@ function TabReq({
   readOnly: true,
   style: {
     ...S.input,
-    background: "#FAF6F1",
+    background: "#FAFAF9",
     fontWeight: 700
   }
 })))))), error && /*#__PURE__*/React.createElement("div", {
@@ -8807,7 +8805,7 @@ function TabReq({
   }
 }, /*#__PURE__*/React.createElement("button", {
   onClick: back,
-  style: S.btn("#FAF6F1", "#555")
+  style: S.btn("#FAFAF9", "#555")
 }, "← Volver"), /*#__PURE__*/React.createElement("h2", {
   style: {
     margin: 0,
@@ -8851,7 +8849,7 @@ function TabReq({
     setForm(selected);
     setView("form");
   },
-  style: S.btn("#FAF6F1", "#555")
+  style: S.btn("#FAFAF9", "#555")
 }, "✏️ Editar"), /*#__PURE__*/React.createElement("button", {
   onClick: () => setShowPrint(true),
   style: S.btn("#1a1a2e", "#fff")
@@ -8984,7 +8982,7 @@ function TabReq({
   }
 }, /*#__PURE__*/React.createElement("button", {
   onClick: () => setShowPrint(false),
-  style: S.btn("#FAF6F1", "#555")
+  style: S.btn("#FAFAF9", "#555")
 }, "← Volver"), /*#__PURE__*/React.createElement("button", {
   onClick: () => window.print(),
   style: S.btn("#1a1a2e", "#fff")
@@ -9192,7 +9190,7 @@ function TabReq({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -9247,7 +9245,7 @@ function TabReq({
     value: p.folioPropioFIPSA
   }, p.folioPropioFIPSA))))), catalogoMateriales.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 10,
       padding: 14,
@@ -9307,7 +9305,7 @@ function TabReq({
   }, "+ Agregar")), form.partidas.map((p, i) => /*#__PURE__*/React.createElement("div", {
     key: p.id || i,
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 10,
       padding: 14,
@@ -9419,7 +9417,7 @@ function TabReq({
     }
   }, "\u26A0\uFE0F ", error), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -9443,7 +9441,7 @@ function TabReq({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Volver"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "monospace",
@@ -9481,7 +9479,7 @@ function TabReq({
       display: "flex",
       justifyContent: "space-between",
       padding: "7px 0",
-      borderBottom: "1px solid #FAF6F1",
+      borderBottom: "1px solid #FAFAF9",
       fontSize: 13
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -9557,7 +9555,7 @@ function TabReq({
       key: i,
       style: {
         padding: "12px 18px",
-        borderBottom: "1px solid #FAF6F1"
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -9619,7 +9617,7 @@ function TabReq({
         Rechazada: ["#dc2626", "#fee2e2"],
         "En proceso": ["#7c3aed", "#f5f3ff"],
         Completada: ["#0369a1", "#e0f2fe"]
-      }[f]?.[1] || "#FAF6F1" : "#fff",
+      }[f]?.[1] || "#FAFAF9" : "#fff",
       color: filtro === f ? {
         Borrador: ["#6b7280", "#f3f4f6"],
         Enviada: ["#2563eb", "#eff6ff"],
@@ -9714,8 +9712,8 @@ function TabReq({
     return /*#__PURE__*/React.createElement("tr", {
       key: r.id,
       style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #FAF6F1",
+        background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+        borderBottom: "1px solid #FAFAF9",
         cursor: "pointer"
       },
       onClick: () => {
@@ -9752,7 +9750,7 @@ function TabReq({
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         background: r.urgencia === "Alta" ? "#fee2e2" : r.urgencia === "Media" ? "#FFF7ED" : "#f0fdf4",
-        color: r.urgencia === "Alta" ? "#dc2626" : r.urgencia === "Media" ? "#C2410C" : "#16a34a",
+        color: r.urgencia === "Alta" ? "#dc2626" : r.urgencia === "Media" ? "#EA580C" : "#16a34a",
         borderRadius: 20,
         padding: "2px 10px",
         fontSize: 11,
@@ -10405,7 +10403,7 @@ function TabOC({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -10420,7 +10418,7 @@ function TabOC({
     }
   }, form.folio))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 12,
       padding: 18,
@@ -10502,7 +10500,7 @@ function TabOC({
     }
   }, "\uD83D\uDCDD ", form.reqInfoRef.notas))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 12,
       padding: 18,
@@ -10615,7 +10613,7 @@ function TabOC({
     style: {
       marginTop: 10,
       padding: 12,
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 8
     }
@@ -10658,7 +10656,7 @@ function TabOC({
     key: o
   }, o)))))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e8e7e0",
       borderRadius: 12,
       padding: 18,
@@ -10993,7 +10991,7 @@ function TabOC({
     }
   }, "\u26A0\uFE0F ", error), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -11062,7 +11060,7 @@ function TabOC({
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: back,
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "\u2190 Volver"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "monospace",
@@ -11097,7 +11095,7 @@ function TabOC({
         display: "flex",
         justifyContent: "space-between",
         padding: "8px 0",
-        borderBottom: "1px solid #FAF6F1"
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -11216,7 +11214,7 @@ function TabOC({
         id: selected.id,
         estado: "Recibida"
       }),
-      style: S.btn("#FFF7ED", "#C2410C")
+      style: S.btn("#FFF7ED", "#EA580C")
     }, "\uD83D\uDCE6 Marcar como Recibida"), !["Pagada", "Cancelada"].includes(selected.estado) && /*#__PURE__*/React.createElement("button", {
       onClick: () => setConfirmDialog({
         id: selected.id,
@@ -11242,7 +11240,7 @@ function TabOC({
         display: "flex",
         gap: 10,
         padding: "7px 0",
-        borderBottom: "1px solid #FAF6F1"
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -11276,7 +11274,7 @@ function TabOC({
       key: i,
       style: {
         padding: "8px 0",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         fontSize: 12
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -11322,7 +11320,7 @@ function TabOC({
         key: i,
         style: {
           padding: "12px 18px",
-          borderBottom: "1px solid #FAF6F1"
+          borderBottom: "1px solid #FAFAF9"
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
@@ -11351,7 +11349,7 @@ function TabOC({
     }), /*#__PURE__*/React.createElement("div", {
       style: {
         padding: "12px 18px",
-        background: "#fafaf8",
+        background: "#FFFFFF",
         display: "flex",
         justifyContent: "space-between"
       }
@@ -11417,7 +11415,7 @@ function TabOC({
         const [ec, ebg] = {
           Pagada: ['#16a34a', '#f0fdf4'],
           Parcial: ['#7c3aed', '#f5f3ff'],
-          Pendiente: ['#C2410C', '#FFF7ED'],
+          Pendiente: ['#EA580C', '#FFF7ED'],
           Vencida: ['#dc2626', '#fee2e2']
         }[est] || ['#888', '#f3f4f6'];
         return /*#__PURE__*/React.createElement("div", {
@@ -11563,7 +11561,7 @@ function TabOC({
         }, "\uD83D\uDDD1\uFE0F"))), (fac.pagos || []).length > 0 && /*#__PURE__*/React.createElement("div", {
           style: {
             marginTop: 10,
-            borderTop: '1px solid #FAF6F1',
+            borderTop: '1px solid #FAFAF9',
             paddingTop: 8
           }
         }, (fac.pagos || []).map(p => /*#__PURE__*/React.createElement("div", {
@@ -11795,7 +11793,7 @@ function TabOC({
         background: "#fafal8",
         borderRadius: 10,
         padding: "16px 20px",
-        border: "1px solid #FAF6F1"
+        border: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -11881,7 +11879,7 @@ function TabOC({
       return /*#__PURE__*/React.createElement("tr", {
         key: i,
         style: {
-          borderBottom: "1px solid #FAF6F1",
+          borderBottom: "1px solid #FAFAF9",
           background: i % 2 === 0 ? "#fff" : "#fafal8"
         }
       }, /*#__PURE__*/React.createElement("td", {
@@ -11939,7 +11937,7 @@ function TabOC({
         borderRadius: 10,
         padding: "16px 20px",
         marginBottom: 20,
-        border: "1px solid #FAF6F1"
+        border: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -11962,7 +11960,7 @@ function TabOC({
         fontSize: 12,
         color: "#555",
         lineHeight: 1.8,
-        border: "1px solid #FAF6F1"
+        border: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -12070,7 +12068,7 @@ function TabOC({
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setConfirmDialog(null),
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
       onClick: () => {
         const nota = [confirmDialog.nota, confirmDialog.formaPago && `Forma: ${confirmDialog.formaPago}`, confirmDialog.monto && `Monto: ${fmt(parseFloat(confirmDialog.monto))}`].filter(Boolean).join(" · ");
@@ -12137,7 +12135,7 @@ function TabOC({
           borderRadius: 8,
           padding: 10,
           textAlign: 'center',
-          background: '#fafaf8',
+          background: '#FFFFFF',
           cursor: 'pointer',
           fontSize: 12,
           fontWeight: 700,
@@ -12157,7 +12155,7 @@ function TabOC({
           borderRadius: 8,
           padding: 10,
           textAlign: 'center',
-          background: '#fafaf8',
+          background: '#FFFFFF',
           cursor: 'pointer',
           fontSize: 12,
           fontWeight: 700,
@@ -12283,7 +12281,7 @@ function TabOC({
         }
       }, /*#__PURE__*/React.createElement("button", {
         onClick: () => setFacModal(null),
-        style: S.btn('#FAF6F1', '#555')
+        style: S.btn('#FAFAF9', '#555')
       }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
         onClick: () => addFacOC(facModal.ocId, lForm),
         style: {
@@ -12391,7 +12389,7 @@ function TabOC({
         }
       }, /*#__PURE__*/React.createElement("button", {
         onClick: () => setPagoModal(null),
-        style: S.btn('#FAF6F1', '#555')
+        style: S.btn('#FAFAF9', '#555')
       }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
         onClick: () => addPagoFacOC(pagoModal.ocId, pagoModal.facId, pForm),
         style: {
@@ -12425,7 +12423,7 @@ function TabOC({
       padding: "7px 14px",
       borderRadius: 20,
       border: `2px solid ${filtro === f ? OC_COLOR[f]?.[0] || "#F97316" : "#e0e0e0"}`,
-      background: filtro === f ? OC_COLOR[f]?.[1] || "#FAF6F1" : "#fff",
+      background: filtro === f ? OC_COLOR[f]?.[1] || "#FAFAF9" : "#fff",
       color: filtro === f ? OC_COLOR[f]?.[0] || "#1a1a2e" : "#888",
       fontWeight: filtro === f ? 700 : 400,
       fontSize: 12,
@@ -12457,7 +12455,7 @@ function TabOC({
     style: { padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", background: filtroMaterial ? "#fff7ed" : "#fff", fontSize: 13, outline: "none", cursor: "pointer", maxWidth: 240 }
   }, [/*#__PURE__*/React.createElement("option", { key: "_all", value: "" }, "\uD83D\uDCE6 Todos los materiales")].concat((catalogoMateriales || []).map(m => /*#__PURE__*/React.createElement("option", { key: m.id, value: String(m.claveFIPSA || m.id) }, "[" + (m.claveFIPSA || "") + "] " + (m.descripcion || "").slice(0, 40))))), /*#__PURE__*/React.createElement("button", {
     onClick: () => setVerPapelera(v => !v),
-    style: S.btn(verPapelera ? "#fee2e2" : "#FAF6F1", verPapelera ? "#dc2626" : "#555")
+    style: S.btn(verPapelera ? "#fee2e2" : "#FAFAF9", verPapelera ? "#dc2626" : "#555")
   }, "\uD83D\uDDD1\uFE0F Papelera", ordenes.filter(o => o.eliminado).length > 0 ? " (" + ordenes.filter(o => o.eliminado).length + ")" : ""), /*#__PURE__*/React.createElement("button", {
     onClick: () => setShowBitacora(true),
     style: S.btn("#eef2ff", "#4338ca")
@@ -12531,7 +12529,7 @@ function TabOC({
         alignItems: "center",
         gap: 12,
         padding: "12px 16px",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         flexWrap: "wrap"
       }
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -12635,7 +12633,7 @@ function TabOC({
     key: b.id,
     style: {
       padding: "10px 18px",
-      borderBottom: "1px solid #FAF6F1",
+      borderBottom: "1px solid #FAFAF9",
       fontSize: 13,
       lineHeight: 1.5
     }
@@ -12697,8 +12695,8 @@ function TabOC({
     return /*#__PURE__*/React.createElement("tr", {
       key: o.id,
       style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #FAF6F1",
+        background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+        borderBottom: "1px solid #FAFAF9",
         cursor: "pointer"
       },
       onClick: () => {
@@ -12969,7 +12967,7 @@ function TabProv({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -13064,7 +13062,7 @@ function TabProv({
     key: m,
     onClick: () => fSet("materiales", form.materiales?.includes(m) ? (form.materiales || []).filter(x => x !== m) : [...(form.materiales || []), m]),
     style: {
-      background: (form.materiales || []).includes(m) ? "#1a1a2e" : "#FAF6F1",
+      background: (form.materiales || []).includes(m) ? "#1a1a2e" : "#FAFAF9",
       color: (form.materiales || []).includes(m) ? "#F97316" : "#555",
       border: "none",
       borderRadius: 20,
@@ -13073,7 +13071,7 @@ function TabProv({
       fontWeight: 600,
       cursor: "pointer"
     }
-  }, m)))), /*#__PURE__*/React.createElement("div", { style: { gridColumn: "1/-1", background: "#fafaf8", borderRadius: 8, padding: "8px 12px" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: "#888" } }, "\uD83C\uDFF7\uFE0F Clasificaci\xF3n para inventario (autom\xE1tica seg\xFAn los materiales): "), catsInvDeProveedor(form).length ? catsInvDeProveedor(form).map(k => { const _c = CATEGORIAS_INV.find(x => x.k === k); return /*#__PURE__*/React.createElement("span", { key: k, style: { background: "#1a1a2e", color: "#F97316", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 700, marginRight: 4 } }, _c ? _c.label : k); }) : /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: "#aaa" } }, "\u2014 marca materiales arriba \u2014")), /*#__PURE__*/React.createElement(Field, {
+  }, m)))), /*#__PURE__*/React.createElement("div", { style: { gridColumn: "1/-1", background: "#FFFFFF", borderRadius: 8, padding: "8px 12px" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: "#888" } }, "\uD83C\uDFF7\uFE0F Clasificaci\xF3n para inventario (autom\xE1tica seg\xFAn los materiales): "), catsInvDeProveedor(form).length ? catsInvDeProveedor(form).map(k => { const _c = CATEGORIAS_INV.find(x => x.k === k); return /*#__PURE__*/React.createElement("span", { key: k, style: { background: "#1a1a2e", color: "#F97316", borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 700, marginRight: 4 } }, _c ? _c.label : k); }) : /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: "#aaa" } }, "\u2014 marca materiales arriba \u2014")), /*#__PURE__*/React.createElement(Field, {
     label: "Notas",
     col: "1/-1"
   }, /*#__PURE__*/React.createElement("textarea", {
@@ -13099,7 +13097,7 @@ function TabProv({
     }
   }, "\u26A0\uFE0F ", error), /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     style: {
@@ -13299,7 +13297,7 @@ function agingBucket(diasVenc) {
 }
 const AGING_COLOR = {
   "Al corriente": "#16a34a",
-  "1–30 días": "#C2410C",
+  "1–30 días": "#EA580C",
   "31–60 días": "#ea580c",
   "61–90 días": "#dc2626",
   "+90 días": "#7f1d1d"
@@ -13342,7 +13340,7 @@ function parseCFDI(xmlText) {
   }
 }
 const FAC_COLOR = {
-  Pendiente: ['#C2410C', '#FFF7ED'],
+  Pendiente: ['#EA580C', '#FFF7ED'],
   Parcial: ['#7c3aed', '#f5f3ff'],
   Pagada: ['#16a34a', '#f0fdf4'],
   Vencida: ['#dc2626', '#fee2e2'],
@@ -13656,7 +13654,7 @@ function ModuloCobranza({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn('#FAF6F1', '#555')
+    style: S.btn('#FAFAF9', '#555')
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -13689,7 +13687,7 @@ function ModuloCobranza({
       borderRadius: 10,
       padding: 16,
       textAlign: 'center',
-      background: '#fafaf8'
+      background: '#FFFFFF'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13741,7 +13739,7 @@ function ModuloCobranza({
       borderRadius: 10,
       padding: 16,
       textAlign: 'center',
-      background: '#fafaf8'
+      background: '#FFFFFF'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -14022,7 +14020,7 @@ function ModuloCobranza({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn('#FAF6F1', '#555')
+    style: S.btn('#FAFAF9', '#555')
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: saveFac,
     disabled: saving,
@@ -14063,7 +14061,7 @@ function ModuloCobranza({
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: back,
-      style: S.btn('#FAF6F1', '#555')
+      style: S.btn('#FAFAF9', '#555')
     }, "\u2190 Volver"), /*#__PURE__*/React.createElement("h2", {
       style: {
         margin: 0,
@@ -14140,7 +14138,7 @@ function ModuloCobranza({
         display: 'flex',
         justifyContent: 'space-between',
         padding: '5px 0',
-        borderBottom: '1px solid #FAF6F1',
+        borderBottom: '1px solid #FAFAF9',
         fontSize: 13
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -14179,7 +14177,7 @@ function ModuloCobranza({
         display: 'flex',
         justifyContent: 'space-between',
         padding: '4px 0',
-        borderBottom: '1px solid #FAF6F1'
+        borderBottom: '1px solid #FAFAF9'
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -14346,7 +14344,7 @@ function ModuloCobranza({
       }
     }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
       style: {
-        background: '#FAF6F1'
+        background: '#FAFAF9'
       }
     }, ['Fecha', 'Forma de pago', 'Referencia', 'Monto', ''].map(h => /*#__PURE__*/React.createElement("th", {
       key: h,
@@ -14361,7 +14359,7 @@ function ModuloCobranza({
     }, h)))), /*#__PURE__*/React.createElement("tbody", null, (fac.cobros || []).map(c => /*#__PURE__*/React.createElement("tr", {
       key: c.id,
       style: {
-        borderBottom: '1px solid #FAF6F1'
+        borderBottom: '1px solid #FAFAF9'
       }
     }, /*#__PURE__*/React.createElement("td", {
       style: {
@@ -14512,7 +14510,7 @@ function ModuloCobranza({
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setCobroForm(null),
-      style: S.btn('#FAF6F1', '#555')
+      style: S.btn('#FAFAF9', '#555')
     }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
       onClick: () => addCobro(cobroForm),
       style: {
@@ -14576,7 +14574,7 @@ function ModuloCobranza({
   }, [{
     k: 'vencidas', emoji: '\uD83D\uDD34', label: 'Vencido', valor: fmt(stats.vencido), sub: stats.vencidas + ' factura(s) \u00b7 cobrar ya', color: '#dc2626'
   }, {
-    k: 'porvencer', emoji: '\uD83D\uDFE0', label: 'Por vencer (7 d\xEDas)', valor: fmt(stats.porVencer), sub: stats.nPorVencer + ' pr\xF3xima(s)', color: '#C2410C'
+    k: 'porvencer', emoji: '\uD83D\uDFE0', label: 'Por vencer (7 d\xEDas)', valor: fmt(stats.porVencer), sub: stats.nPorVencer + ' pr\xF3xima(s)', color: '#EA580C'
   }, {
     k: 'todas', emoji: '\uD83D\uDCB5', label: 'Total por cobrar', valor: fmt(stats.porCobrar), sub: 'clic para ver todas', color: '#1a1a2e'
   }, {
@@ -14618,7 +14616,7 @@ function ModuloCobranza({
       padding: '7px 14px',
       borderRadius: 20,
       border: `2px solid ${filtro === f ? FAC_COLOR[f]?.[0] || '#F97316' : '#e0e0e0'}`,
-      background: filtro === f ? FAC_COLOR[f]?.[1] || '#FAF6F1' : '#fff',
+      background: filtro === f ? FAC_COLOR[f]?.[1] || '#FAFAF9' : '#fff',
       color: filtro === f ? FAC_COLOR[f]?.[0] || '#1a1a2e' : '#888',
       fontWeight: filtro === f ? 700 : 400,
       fontSize: 12,
@@ -14706,8 +14704,8 @@ function ModuloCobranza({
     return /*#__PURE__*/React.createElement("tr", {
       key: f.id,
       style: {
-        background: i % 2 === 0 ? '#fff' : '#fafaf8',
-        borderBottom: '1px solid #FAF6F1',
+        background: i % 2 === 0 ? '#fff' : '#FFFFFF',
+        borderBottom: '1px solid #FAFAF9',
         cursor: 'pointer'
       },
       onClick: () => {
@@ -14743,7 +14741,7 @@ function ModuloCobranza({
       if (activa && d !== null) {
         if (d < 0) { texto = 'Vencida hace ' + Math.abs(d) + ' d\u00EDa(s)'; col = '#dc2626'; }
         else if (d === 0) { texto = 'Vence hoy'; col = '#dc2626'; }
-        else if (d <= 7) { texto = 'Vence en ' + d + ' d\u00EDa(s)'; col = '#C2410C'; }
+        else if (d <= 7) { texto = 'Vence en ' + d + ' d\u00EDa(s)'; col = '#EA580C'; }
         else { texto = 'Vence en ' + d + ' d\u00EDas'; col = '#888'; }
       }
       return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -15087,17 +15085,17 @@ function Pedido360({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: onBack,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Volver"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: "monospace",
       fontWeight: 900,
       fontSize: 18,
-      color: "#9A3412"
+      color: "#1a1a2e"
     }
   }, selected.folioPropioFIPSA), selected.folioCliente && /*#__PURE__*/React.createElement("span", {
     style: {
-      background: "#FAF6F1",
+      background: "#FAFAF9",
       color: "#555",
       borderRadius: 6,
       padding: "3px 10px",
@@ -15156,7 +15154,7 @@ function Pedido360({
     style: {
       display: "flex",
       overflowX: "auto",
-      borderBottom: "1px solid #FAF6F1"
+      borderBottom: "1px solid #FAFAF9"
     }
   }, TABS.map(t => /*#__PURE__*/React.createElement(TabBtn, {
     key: t.id,
@@ -15189,7 +15187,7 @@ function Pedido360({
       display: "flex",
       justifyContent: "space-between",
       padding: "7px 0",
-      borderBottom: "1px solid #FAF6F1",
+      borderBottom: "1px solid #FAFAF9",
       fontSize: 13
     }
   }, /*#__PURE__*/React.createElement("span", {
@@ -15264,7 +15262,7 @@ function Pedido360({
       gap: 8,
       padding: "8px 10px",
       borderRadius: 8,
-      border: `1.5px solid ${(selected.requisitos?.[key] || key === "printcardAprobada" && pedidoPrintcardOk(selected, printcards)) ? "#16a34a" : "#C2410C"}`,
+      border: `1.5px solid ${(selected.requisitos?.[key] || key === "printcardAprobada" && pedidoPrintcardOk(selected, printcards)) ? "#16a34a" : "#EA580C"}`,
       background: (selected.requisitos?.[key] || key === "printcardAprobada" && pedidoPrintcardOk(selected, printcards)) ? "#f0fdf4" : "#FFF7ED",
       cursor: "pointer",
       marginBottom: 6
@@ -15276,7 +15274,7 @@ function Pedido360({
       borderRadius: 5,
       flexShrink: 0,
       background: (selected.requisitos?.[key] || key === "printcardAprobada" && pedidoPrintcardOk(selected, printcards)) ? "#16a34a" : "#fff",
-      border: `2px solid ${(selected.requisitos?.[key] || key === "printcardAprobada" && pedidoPrintcardOk(selected, printcards)) ? "#16a34a" : "#C2410C"}`,
+      border: `2px solid ${(selected.requisitos?.[key] || key === "printcardAprobada" && pedidoPrintcardOk(selected, printcards)) ? "#16a34a" : "#EA580C"}`,
       display: "flex",
       alignItems: "center",
       justifyContent: "center"
@@ -15412,7 +15410,7 @@ function Pedido360({
       key: i,
       style: {
         padding: "12px 18px",
-        borderBottom: "1px solid #FAF6F1"
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -15435,7 +15433,7 @@ function Pedido360({
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "12px 18px",
-      background: "#fafaf8",
+      background: "#FFFFFF",
       display: "flex",
       justifyContent: "space-between"
     }
@@ -15478,7 +15476,7 @@ function Pedido360({
         display: "flex",
         gap: 10,
         padding: "8px 0",
-        borderBottom: i < arr.length - 1 ? "1px solid #FAF6F1" : "none"
+        borderBottom: i < arr.length - 1 ? "1px solid #FAFAF9" : "none"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -15622,7 +15620,7 @@ function Pedido360({
       style: {
         fontWeight: 900,
         fontSize: 18,
-        color: "#9A3412"
+        color: "#1a1a2e"
       }
     }, fmt(c.precioSugTotal || 0)), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -15894,7 +15892,7 @@ function Pedido360({
       style: {
         fontWeight: 900,
         fontSize: 18,
-        color: "#9A3412"
+        color: "#1a1a2e"
       }
     }, fmt(parseFloat(f.total) || 0)), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -15961,7 +15959,7 @@ function Pedido360({
         display: "flex",
         gap: 12,
         padding: "10px 0",
-        borderBottom: "1px solid #FAF6F1"
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -16046,7 +16044,7 @@ function Pedido360({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setCD(null),
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: () => avanzarEstado(confirmDialog.id, confirmDialog.estado, confirmDialog.nota || ""),
     style: {
@@ -16168,7 +16166,7 @@ function generarOPBase(pedido, prod, ordenesProduccion) {
 // ══════════════════════════════════════════════════════════════════════════════
 const OP_ESTADOS = ["Pendiente", "En proceso", "Finalizada", "Cancelada"];
 const OP_COLOR = {
-  Pendiente: ["#C2410C", "#FFF7ED"],
+  Pendiente: ["#EA580C", "#FFF7ED"],
   Planeación: ["#7c3aed", "#f5f3ff"],
   "En proceso": ["#2563eb", "#eff6ff"],
   Finalizada: ["#16a34a", "#f0fdf4"],
@@ -16210,7 +16208,7 @@ function SegTarjeta({ s, onEdit, onDelete, canEdit, canDelete }) {
       React.createElement("span", { style: { color: "#15803d", fontWeight: 700 } }, "\u2705 ", (parseInt(s.piezasOk) || 0).toLocaleString("es-MX"), " OK"),
       React.createElement("span", { style: { color: "#dc2626", fontWeight: 700 } }, "\u2716 ", (parseInt(s.rechazos) || 0).toLocaleString("es-MX"), " rech.")),
     s.observaciones ? React.createElement("div", { style: { fontSize: 12, color: "#666", marginTop: 6, fontStyle: "italic" } }, s.observaciones) : null,
-    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, borderTop: "1px solid #FAF6F1", paddingTop: 6 } },
+    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, borderTop: "1px solid #FAFAF9", paddingTop: 6 } },
       React.createElement("span", { style: { fontSize: 11, color: "#999" } }, "Capturado por ", React.createElement("b", null, s.usuario || "\u2014"), s.capturadoEn ? (" \u00B7 " + displayDate(String(s.capturadoEn).slice(0, 10))) : ""),
       React.createElement("div", { style: { display: "flex", gap: 6 } },
         canEdit ? React.createElement("button", { onClick: () => onEdit(s), style: { ...S.btn("#f5f3ff", "#7c3aed"), fontSize: 11, padding: "4px 10px" } }, "\u270F\uFE0F Editar") : null,
@@ -16280,7 +16278,7 @@ function ModuloSeguimiento({ foco, setFoco, ordenesProduccion = [], clientes = [
           React.createElement(Field, { label: "Nombre" }, React.createElement("input", { value: maqForm.nombre, onChange: e => setMaqForm(m => ({ ...m, nombre: e.target.value })), placeholder: "Ej: Impresora 2", style: S.input })),
           React.createElement(Field, { label: "Proceso" }, React.createElement("select", { value: maqForm.proceso, onChange: e => setMaqForm(m => ({ ...m, proceso: e.target.value })), style: S.select }, SEG_PROC_KEYS.map(k => React.createElement("option", { key: k, value: k }, SEG_PROC_LABELS[k] || k)))),
           React.createElement("button", { onClick: guardarMaq, style: { ...S.btn("#16a34a", "#fff") } }, "Guardar")) : null,
-        (maquinas || []).length === 0 ? React.createElement("div", { style: { color: "#999", fontSize: 13 } }, "Sin m\u00E1quinas registradas.") : React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, (maquinas || []).map(m => React.createElement("div", { key: m.id, style: { display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#fafaf8", borderRadius: 8 } },
+        (maquinas || []).length === 0 ? React.createElement("div", { style: { color: "#999", fontSize: 13 } }, "Sin m\u00E1quinas registradas.") : React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, (maquinas || []).map(m => React.createElement("div", { key: m.id, style: { display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#FFFFFF", borderRadius: 8 } },
           React.createElement("span", { style: { fontWeight: 700 } }, m.nombre),
           React.createElement("span", { style: { fontSize: 12, color: "#777" } }, SEG_PROC_LABELS[m.proceso] || m.proceso),
           React.createElement("span", { style: { flex: 1 } }),
@@ -16459,7 +16457,7 @@ function ModuloProgramacion({ foco, setFoco, ordenesProduccion = [], clientes = 
   };
 
   const toolbar = h("div", { style: { display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 } },
-    h("div", { style: { fontWeight: 800, fontSize: 18, color: "#9A3412" } }, "📅 Programación de producción"),
+    h("div", { style: { fontWeight: 800, fontSize: 18, color: "#1a1a2e" } }, "📅 Programación de producción"),
     flexoMaq.length > 1 ? h("select", { value: String(maqId), onChange: e => setMaqSel(e.target.value), style: { ...S.select, width: "auto" } }, flexoMaq.map(m => h("option", { key: m.id, value: String(m.id) }, m.nombre))) : (maqActiva ? h("span", { style: { fontSize: 13, color: "#555" } }, "🖨️ " + maqNombre) : null),
     h("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" } }, h("span", { style: { fontSize: 12, color: "#777" } }, "Turnos:"), h("span", { style: { fontSize: 12, fontWeight: 700, color: "#16a34a", border: "1px solid #bbf7d0", background: "#f0fdf4", borderRadius: 6, padding: "3px 8px" } }, "Matutino \u00B7 fijo"), ["Vespertino", "Nocturno"].map(tn => { const on = activos.includes(tn); return h("button", { key: tn, onClick: () => toggleTurno(tn), disabled: !canEdit && !canCreate, title: on ? "Desactivar turno (horas extra)" : "Activar turno extra (horas extra)", style: { ...S.btn(on ? "#7c3aed" : "#f3f4f6", on ? "#fff" : "#777"), fontSize: 12, padding: "3px 8px" } }, (on ? "\u25CF " : "\u25CB ") + tn); }), h("span", { style: { fontSize: 11, color: "#aaa" } }, "(extra)")),
     h("div", { style: { flex: 1 } }),
@@ -17013,7 +17011,7 @@ function ModuloProduccion({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -17029,7 +17027,7 @@ function ModuloProduccion({
   }, form.folio)), ordenesProduccion.find(o => o.id === form.id) && /*#__PURE__*/React.createElement("span", {
     style: {
       background: "#FFF7ED",
-      color: "#C2410C",
+      color: "#EA580C",
       borderRadius: 20,
       padding: "3px 12px",
       fontSize: 12,
@@ -17074,7 +17072,7 @@ function ModuloProduccion({
     style: {
       padding: "10px 14px",
       borderRadius: 8,
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px solid #e0e0e0",
       fontSize: 13,
       color: "#aaa"
@@ -17287,7 +17285,7 @@ function ModuloProduccion({
   })), (form.anchoCmSugerido || form.largoCmSugerido) && /*#__PURE__*/React.createElement("div", {
     style: {
       gridColumn: "1/-1",
-      background: "#fafaf8",
+      background: "#FFFFFF",
       border: "1px dashed #F97316",
       borderRadius: 8,
       padding: "8px 14px",
@@ -17354,7 +17352,7 @@ function ModuloProduccion({
     placeholder: "calculado",
     style: {
       ...S.input,
-      background: "#fafaf8",
+      background: "#FFFFFF",
       fontWeight: 700,
       color: "#7c3aed"
     }
@@ -17414,7 +17412,7 @@ function ModuloProduccion({
       border: "2px solid #2563eb",
       borderRadius: 10,
       padding: 14,
-      background: "#fafaf8"
+      background: "#FFFFFF"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -17555,7 +17553,7 @@ function ModuloProduccion({
         alignItems: "center",
         gap: 10,
         padding: "11px 16px",
-        background: proc.aplica ? "#f5f3ff" : "#fafaf8",
+        background: proc.aplica ? "#f5f3ff" : "#FFFFFF",
         cursor: "pointer"
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -17653,7 +17651,7 @@ function ModuloProduccion({
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: back,
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     disabled: !form.pedidoId || !form.cantidadPiezas,
@@ -17897,7 +17895,7 @@ function ModuloProduccion({
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setShowProdFinal(false),
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
       onClick: registrarProduccionFinal,
       style: {
@@ -18137,7 +18135,7 @@ function ModuloProduccion({
     }, "piezas")), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: 1,
-        background: "#fafaf8",
+        background: "#FFFFFF",
         borderRadius: 10,
         padding: "16px 20px",
         textAlign: "center"
@@ -18484,13 +18482,13 @@ function ModuloProduccion({
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: back,
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "\u2190 Volver"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "monospace",
         fontWeight: 900,
         fontSize: 18,
-        color: "#9A3412"
+        color: "#1a1a2e"
       }
     }, selected.folio), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -18627,7 +18625,7 @@ function ModuloProduccion({
         display: "flex",
         justifyContent: "space-between",
         padding: "7px 0",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         fontSize: 13
       }
     }, /*#__PURE__*/React.createElement("span", {
@@ -18760,9 +18758,9 @@ function ModuloProduccion({
       style: {
         padding: "7px 14px",
         borderRadius: 8,
-        border: `1.5px solid ${planForm.carton === opt.v ? opt.v === "en_almacen" ? "#16a34a" : opt.v === "pedido_proveedor" ? "#2563eb" : "#C2410C" : "#e0e0e0"}`,
-        background: planForm.carton === opt.v ? opt.v === "en_almacen" ? "#f0fdf4" : opt.v === "pedido_proveedor" ? "#eff6ff" : "#FFF7ED" : "#fafaf8",
-        color: planForm.carton === opt.v ? opt.v === "en_almacen" ? "#15803d" : opt.v === "pedido_proveedor" ? "#1d4ed8" : "#C2410C" : "#555",
+        border: `1.5px solid ${planForm.carton === opt.v ? opt.v === "en_almacen" ? "#16a34a" : opt.v === "pedido_proveedor" ? "#2563eb" : "#EA580C" : "#e0e0e0"}`,
+        background: planForm.carton === opt.v ? opt.v === "en_almacen" ? "#f0fdf4" : opt.v === "pedido_proveedor" ? "#eff6ff" : "#FFF7ED" : "#FFFFFF",
+        color: planForm.carton === opt.v ? opt.v === "en_almacen" ? "#15803d" : opt.v === "pedido_proveedor" ? "#1d4ed8" : "#EA580C" : "#555",
         fontSize: 12,
         cursor: "pointer",
         fontWeight: planForm.carton === opt.v ? 700 : 400
@@ -18805,9 +18803,9 @@ function ModuloProduccion({
       style: {
         padding: "7px 14px",
         borderRadius: 8,
-        border: `1.5px solid ${planForm.grabados === opt.v ? opt.v === "listos" ? "#16a34a" : opt.v === "en_proceso" ? "#7c3aed" : "#C2410C" : "#e0e0e0"}`,
-        background: planForm.grabados === opt.v ? opt.v === "listos" ? "#f0fdf4" : opt.v === "en_proceso" ? "#f5f3ff" : "#FFF7ED" : "#fafaf8",
-        color: planForm.grabados === opt.v ? opt.v === "listos" ? "#15803d" : opt.v === "en_proceso" ? "#7c3aed" : "#C2410C" : "#555",
+        border: `1.5px solid ${planForm.grabados === opt.v ? opt.v === "listos" ? "#16a34a" : opt.v === "en_proceso" ? "#7c3aed" : "#EA580C" : "#e0e0e0"}`,
+        background: planForm.grabados === opt.v ? opt.v === "listos" ? "#f0fdf4" : opt.v === "en_proceso" ? "#f5f3ff" : "#FFF7ED" : "#FFFFFF",
+        color: planForm.grabados === opt.v ? opt.v === "listos" ? "#15803d" : opt.v === "en_proceso" ? "#7c3aed" : "#EA580C" : "#555",
         fontSize: 12,
         cursor: "pointer",
         fontWeight: planForm.grabados === opt.v ? 700 : 400
@@ -18850,9 +18848,9 @@ function ModuloProduccion({
       style: {
         padding: "7px 14px",
         borderRadius: 8,
-        border: `1.5px solid ${planForm.suaje === opt.v ? opt.v === "disponible" ? "#16a34a" : opt.v === "a_fabricar" ? "#C2410C" : "#ef4444" : "#e0e0e0"}`,
-        background: planForm.suaje === opt.v ? opt.v === "disponible" ? "#f0fdf4" : opt.v === "a_fabricar" ? "#FFF7ED" : "#fee2e2" : "#fafaf8",
-        color: planForm.suaje === opt.v ? opt.v === "disponible" ? "#15803d" : opt.v === "a_fabricar" ? "#C2410C" : "#dc2626" : "#555",
+        border: `1.5px solid ${planForm.suaje === opt.v ? opt.v === "disponible" ? "#16a34a" : opt.v === "a_fabricar" ? "#EA580C" : "#ef4444" : "#e0e0e0"}`,
+        background: planForm.suaje === opt.v ? opt.v === "disponible" ? "#f0fdf4" : opt.v === "a_fabricar" ? "#FFF7ED" : "#fee2e2" : "#FFFFFF",
+        color: planForm.suaje === opt.v ? opt.v === "disponible" ? "#15803d" : opt.v === "a_fabricar" ? "#EA580C" : "#dc2626" : "#555",
         fontSize: 12,
         cursor: "pointer",
         fontWeight: planForm.suaje === opt.v ? 700 : 400
@@ -18888,7 +18886,7 @@ function ModuloProduccion({
         padding: "8px 18px",
         borderRadius: 8,
         border: `1.5px solid ${planForm.autorizaArranque === opt.v ? opt.c : "#e0e0e0"}`,
-        background: planForm.autorizaArranque === opt.v ? opt.c + "15" : "#fafaf8",
+        background: planForm.autorizaArranque === opt.v ? opt.c + "15" : "#FFFFFF",
         color: planForm.autorizaArranque === opt.v ? opt.c : "#555",
         fontSize: 13,
         cursor: "pointer",
@@ -19051,7 +19049,7 @@ function ModuloProduccion({
           display: "flex",
           gap: 10,
           padding: "8px 0",
-          borderBottom: i < arr.length - 1 ? "1px solid #FAF6F1" : "none"
+          borderBottom: i < arr.length - 1 ? "1px solid #FAFAF9" : "none"
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
@@ -19097,7 +19095,7 @@ function ModuloProduccion({
       const arr = (seguimiento || []).filter(s => String(s.opId) === String(selected.id) && s.proceso === pk).slice().sort((a, b) => String(b.capturadoEn || "").localeCompare(String(a.capturadoEn || "")));
       const okT = arr.reduce((a, s) => a + (parseInt(s.piezasOk) || 0), 0);
       const reT = arr.reduce((a, s) => a + (parseInt(s.rechazos) || 0), 0);
-      return /*#__PURE__*/React.createElement("div", { key: pk, style: { ...S.card, overflow: "hidden", marginBottom: 12 } }, /*#__PURE__*/React.createElement("div", { style: { background: "#1a1a2e", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /*#__PURE__*/React.createElement("span", { style: { color: "#F97316", fontWeight: 700 } }, SEG_PROC_LABELS[pk] || pk), /*#__PURE__*/React.createElement("span", { style: { color: "#4ade80", fontSize: 12 } }, "\u2705 " + okT.toLocaleString("es-MX") + " ok \xB7 " + reT.toLocaleString("es-MX") + " rechazos")), /*#__PURE__*/React.createElement("div", { style: { padding: "6px 14px" } }, arr.map(s => /*#__PURE__*/React.createElement("div", { key: s.id, style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, padding: "6px 0", borderBottom: "1px solid #FAF6F1" } }, /*#__PURE__*/React.createElement("span", { style: { color: "#555" } }, displayDate(s.fecha) + " \xB7 " + s.turno + (s.maquinaNombre ? (" \xB7 " + s.maquinaNombre) : "") + ((s.horaInicio || s.horaFin) ? (" \xB7 " + (s.horaInicio || "--") + "-" + (s.horaFin || "--")) : "") + ((s.proceso === "impresion" && s.modalidadImpresion) ? (" \xB7 " + modalidadLabel(s.modalidadImpresion)) : "")), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", { style: { color: "#15803d" } }, (parseInt(s.piezasOk) || 0).toLocaleString("es-MX") + " ok"), " ", /*#__PURE__*/React.createElement("b", { style: { color: "#dc2626" } }, (parseInt(s.rechazos) || 0).toLocaleString("es-MX") + " rech."), " ", /*#__PURE__*/React.createElement("span", { style: { color: "#999" } }, "\u2014 " + (s.usuario || ""))), s.observaciones ? /*#__PURE__*/React.createElement("span", { style: { width: "100%", color: "#888", fontStyle: "italic" } }, s.observaciones) : null))));     })), [], false)));
+      return /*#__PURE__*/React.createElement("div", { key: pk, style: { ...S.card, overflow: "hidden", marginBottom: 12 } }, /*#__PURE__*/React.createElement("div", { style: { background: "#1a1a2e", padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" } }, /*#__PURE__*/React.createElement("span", { style: { color: "#F97316", fontWeight: 700 } }, SEG_PROC_LABELS[pk] || pk), /*#__PURE__*/React.createElement("span", { style: { color: "#4ade80", fontSize: 12 } }, "\u2705 " + okT.toLocaleString("es-MX") + " ok \xB7 " + reT.toLocaleString("es-MX") + " rechazos")), /*#__PURE__*/React.createElement("div", { style: { padding: "6px 14px" } }, arr.map(s => /*#__PURE__*/React.createElement("div", { key: s.id, style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, padding: "6px 0", borderBottom: "1px solid #FAFAF9" } }, /*#__PURE__*/React.createElement("span", { style: { color: "#555" } }, displayDate(s.fecha) + " \xB7 " + s.turno + (s.maquinaNombre ? (" \xB7 " + s.maquinaNombre) : "") + ((s.horaInicio || s.horaFin) ? (" \xB7 " + (s.horaInicio || "--") + "-" + (s.horaFin || "--")) : "") + ((s.proceso === "impresion" && s.modalidadImpresion) ? (" \xB7 " + modalidadLabel(s.modalidadImpresion)) : "")), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("b", { style: { color: "#15803d" } }, (parseInt(s.piezasOk) || 0).toLocaleString("es-MX") + " ok"), " ", /*#__PURE__*/React.createElement("b", { style: { color: "#dc2626" } }, (parseInt(s.rechazos) || 0).toLocaleString("es-MX") + " rech."), " ", /*#__PURE__*/React.createElement("span", { style: { color: "#999" } }, "\u2014 " + (s.usuario || ""))), s.observaciones ? /*#__PURE__*/React.createElement("span", { style: { width: "100%", color: "#888", fontStyle: "italic" } }, s.observaciones) : null))));     })), [], false)));
   }
 
   // ── Vista lista principal ─────────────────────────────────────────────────
@@ -19201,7 +19199,7 @@ function ModuloProduccion({
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      borderBottom: "1px solid #FAF6F1"
+      borderBottom: "1px solid #FAFAF9"
     }
   }, /*#__PURE__*/React.createElement(Tab, {
     id: "ops",
@@ -19243,7 +19241,7 @@ function ModuloProduccion({
       padding: "8px 12px",
       borderRadius: 8,
       border: `2px solid ${filtro === f ? OP_COLOR[f]?.[0] || "#F97316" : "#e0e0e0"}`,
-      background: filtro === f ? OP_COLOR[f]?.[1] || "#FAF6F1" : "#fff",
+      background: filtro === f ? OP_COLOR[f]?.[1] || "#FAFAF9" : "#fff",
       color: filtro === f ? OP_COLOR[f]?.[0] || "#1a1a2e" : "#888",
       fontWeight: filtro === f ? 700 : 400,
       fontSize: 12,
@@ -19317,8 +19315,8 @@ function ModuloProduccion({
     return /*#__PURE__*/React.createElement("tr", {
       key: op.id,
       style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #FAF6F1",
+        background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+        borderBottom: "1px solid #FAFAF9",
         cursor: "pointer"
       },
       onClick: () => {
@@ -19765,7 +19763,7 @@ function TabInventarioCarton({
       setView("list");
       setForm(null);
     },
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: 0,
@@ -19959,7 +19957,7 @@ function TabInventarioCarton({
       setView("list");
       setForm(null);
     },
-    style: S.btn("#FAF6F1", "#555")
+    style: S.btn("#FAFAF9", "#555")
   }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
     onClick: handleSave,
     disabled: !form.numTarima || !form.hojasEntrada,
@@ -20000,7 +19998,7 @@ function TabInventarioCarton({
         setView("list");
         setSelected(null);
       },
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "\u2190 Volver"), /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: "monospace",
@@ -20054,7 +20052,7 @@ function TabInventarioCarton({
         });
         setView("form");
       },
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "\u270F\uFE0F Editar")), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "grid",
@@ -20200,7 +20198,7 @@ function TabInventarioCarton({
         display: "flex",
         justifyContent: "space-between",
         padding: "6px 0",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         fontSize: 13,
         gap: 8
       }
@@ -20219,7 +20217,7 @@ function TabInventarioCarton({
         marginTop: 10,
         fontSize: 13,
         color: "#555",
-        background: "#fafaf8",
+        background: "#FFFFFF",
         borderRadius: 7,
         padding: "8px 10px"
       }
@@ -20272,7 +20270,7 @@ function TabInventarioCarton({
       key: i,
       style: {
         padding: "12px 18px",
-        borderBottom: "1px solid #FAF6F1"
+        borderBottom: "1px solid #FAFAF9"
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -20321,7 +20319,7 @@ function TabInventarioCarton({
     }, a.opEstado)))), asigTotal.length > 0 && /*#__PURE__*/React.createElement("div", {
       style: {
         padding: "10px 18px",
-        background: "#fafaf8",
+        background: "#FFFFFF",
         display: "flex",
         justifyContent: "space-between"
       }
@@ -20518,8 +20516,8 @@ function TabInventarioCarton({
     return /*#__PURE__*/React.createElement("tr", {
       key: t.id,
       style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #FAF6F1",
+        background: i % 2 === 0 ? "#fff" : "#FFFFFF",
+        borderBottom: "1px solid #FAFAF9",
         cursor: "pointer"
       },
       onClick: () => {
@@ -20596,7 +20594,7 @@ function TabInventarioCarton({
         setView("form");
       },
       style: {
-        ...S.btn("#FAF6F1", "#555"),
+        ...S.btn("#FAFAF9", "#555"),
         fontSize: 11
       }
     }, "\u270F\uFE0F"), canDelete && /*#__PURE__*/React.createElement("button", {
@@ -20658,9 +20656,9 @@ function TabInventarioCarton({
         gridTemplateColumns: "110px 1fr 100px 80px 80px 120px 80px 80px",
         gap: 0,
         padding: "12px 16px",
-        borderBottom: "1px solid #FAF6F1",
+        borderBottom: "1px solid #FAFAF9",
         alignItems: "center",
-        background: dispH === 0 ? "#fafaf8" : "#fff"
+        background: dispH === 0 ? "#FFFFFF" : "#fff"
       }
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -20702,7 +20700,7 @@ function TabInventarioCarton({
       style: {
         width: 60,
         height: 3,
-        background: "#FAF6F1",
+        background: "#FAFAF9",
         borderRadius: 2
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -20855,7 +20853,7 @@ function TabInventarioCarton({
       }
     }, dispH.toLocaleString(), " hojas disponibles")), /*#__PURE__*/React.createElement("div", {
       style: {
-        background: "#fafaf8",
+        background: "#FFFFFF",
         border: "1px solid #e8e7e0",
         borderRadius: 8,
         padding: "10px 14px",
@@ -20958,7 +20956,7 @@ function TabInventarioCarton({
         setShowAsig(false);
         setAsigForm(null);
       },
-      style: S.btn("#FAF6F1", "#555")
+      style: S.btn("#FAFAF9", "#555")
     }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
       onClick: handleAsignar,
       disabled: !asigForm.opId || !asigForm.hojas || excede,
@@ -21051,7 +21049,7 @@ function RhModal({
     style: {
       margin: 0,
       fontSize: 18,
-      color: "#9A3412",
+      color: "#1a1a2e",
       fontWeight: 900
     }
   }, titulo), /*#__PURE__*/React.createElement("button", {
@@ -21403,7 +21401,7 @@ const CRM_ETAPAS = [{
 }, {
   id: "negociacion",
   label: "Negociación",
-  color: "#C2410C",
+  color: "#EA580C",
   bg: "#fef3c7"
 }, {
   id: "ganado",
@@ -22788,7 +22786,7 @@ function ModuloComisiones({
   }), /*#__PURE__*/React.createElement(RhStat, {
     label: "Pendiente de pago",
     valor: fmt(totalPendiente),
-    color: "#C2410C"
+    color: "#EA580C"
   }), /*#__PURE__*/React.createElement(RhStat, {
     label: "Pagada",
     valor: fmt(totalPagada),
@@ -23104,7 +23102,7 @@ function estadoInsumo(existencia, minimo) {
   };
   if (min > 0 && ex <= min) return {
     txt: "Bajo mínimo",
-    c: "#C2410C",
+    c: "#EA580C",
     bg: "#fef3c7"
   };
   return {
@@ -23710,7 +23708,7 @@ function TabInsumos({
     placeholder: "ej. consumo OP-2026-001, merma"
   })), /*#__PURE__*/React.createElement("button", {
     onClick: registrarSalida,
-    style: S.btn("#C2410C", "#fff", {
+    style: S.btn("#EA580C", "#fff", {
       padding: "11px 24px"
     })
   }, "Registrar salida"))), histIng && /*#__PURE__*/React.createElement(RhModal, {
@@ -23748,7 +23746,7 @@ function TabInsumos({
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
     style: {
       fontWeight: 700,
-      color: "#C2410C"
+      color: "#EA580C"
     }
   }, "\u2212 ", m.cantidad, " ", histIng.unidad), /*#__PURE__*/React.createElement("span", {
     style: {
@@ -23872,7 +23870,7 @@ function disponibleProv(prov) {
   return round2(creditosDe(prov).reduce((s, c) => s + (parseFloat(c.disponible) || 0), 0));
 }
 const FAC_C = {
-  Pendiente: ["#C2410C", "#FFF7ED"],
+  Pendiente: ["#EA580C", "#FFF7ED"],
   Parcial: ["#7c3aed", "#f5f3ff"],
   Pagada: ["#16a34a", "#f0fdf4"],
   Vencida: ["#dc2626", "#fee2e2"],
@@ -25026,7 +25024,7 @@ function TabFacturasCompra({
     marginTop: 10,
     fontSize: 13,
     fontWeight: 700,
-    color: Math.abs(asignadoSinIva - subtotalFac) < 0.5 ? "#16a34a" : "#C2410C"
+    color: Math.abs(asignadoSinIva - subtotalFac) < 0.5 ? "#16a34a" : "#EA580C"
   }
 }, "Asignado (sin IVA): ", fmt(asignadoSinIva), " de subtotal ", fmt(subtotalFac), " ", Math.abs(asignadoSinIva - subtotalFac) < 0.5 ? "\u2713" : `(diferencia ${fmt(subtotalFac - asignadoSinIva)})`))), /*#__PURE__*/React.createElement(Field, {
       label: "Notas",
@@ -25088,12 +25086,12 @@ function TabFacturasCompra({
     title: "Facturas que vencen dentro de los próximos 7 días",
     style: {
       flex: "1 1 200px", minWidth: 200, cursor: "pointer", background: "#fff",
-      border: `1px solid ${fVista === "porvencer" ? "#C2410C" : "#f3ead6"}`,
-      borderLeft: "5px solid #C2410C", borderRadius: 12, padding: "12px 16px",
+      border: `1px solid ${fVista === "porvencer" ? "#EA580C" : "#f3ead6"}`,
+      borderLeft: "5px solid #EA580C", borderRadius: 12, padding: "12px 16px",
       boxShadow: fVista === "porvencer" ? "0 0 0 3px rgba(217,119,6,0.12)" : "none"
     }
   }, /*#__PURE__*/React.createElement("div", {
-    style: { fontSize: 11, color: "#C2410C", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.3 }
+    style: { fontSize: 11, color: "#EA580C", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.3 }
   }, "\uD83D\uDFE0 Por vencer (7 d\xEDas)"), /*#__PURE__*/React.createElement("div", {
     style: { fontSize: 22, fontWeight: 900, color: "#1a1a2e", margin: "2px 0" }
   }, fmt(totalPorVencer)), /*#__PURE__*/React.createElement("div", {
@@ -25243,7 +25241,7 @@ function TabFacturasCompra({
   style: {
     padding: "8px 14px",
     fontWeight: 800,
-    color: r.saldo > 0.5 ? "#C2410C" : "#16a34a"
+    color: r.saldo > 0.5 ? "#EA580C" : "#16a34a"
   }
 }, fmt(r.saldo)), /*#__PURE__*/React.createElement("td", {
   style: {
@@ -25276,7 +25274,7 @@ function TabFacturasCompra({
 }, fmt(apPorProv.reduce((s, r) => s + r.pagado, 0))), /*#__PURE__*/React.createElement("td", {
   style: {
     padding: "9px 14px",
-    color: "#C2410C"
+    color: "#EA580C"
   }
 }, fmt(apPorProv.reduce((s, r) => s + r.saldo, 0))), /*#__PURE__*/React.createElement("td", {
   style: {
@@ -25365,7 +25363,7 @@ function TabFacturasCompra({
       if (activa && d !== null) {
         if (d < 0) { texto = "Vencida hace " + Math.abs(d) + " d\u00EDa(s)"; col = "#dc2626"; }
         else if (d === 0) { texto = "Vence hoy"; col = "#dc2626"; }
-        else if (d <= 7) { texto = "Vence en " + d + " d\u00EDa(s)"; col = "#C2410C"; }
+        else if (d <= 7) { texto = "Vence en " + d + " d\u00EDa(s)"; col = "#EA580C"; }
         else { texto = "Vence en " + d + " d\u00EDas"; col = "#888"; }
       }
       return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -25382,10 +25380,10 @@ function TabFacturasCompra({
       style: {
         padding: "10px 14px",
         fontWeight: 800,
-        color: f._saldo > 0.5 ? "#C2410C" : "#16a34a"
+        color: f._saldo > 0.5 ? "#EA580C" : "#16a34a"
       }
     }, /*#__PURE__*/React.createElement("div", {
-      style: { fontWeight: 800, color: f._saldo > 0.5 ? "#C2410C" : "#16a34a" }
+      style: { fontWeight: 800, color: f._saldo > 0.5 ? "#EA580C" : "#16a34a" }
     }, fmt(f._saldo)), (() => {
       const tot = parseFloat(f.total) || 0;
       if (tot <= 0 || f._estado === "Cancelada") return null;
@@ -25396,7 +25394,7 @@ function TabFacturasCompra({
       }, /*#__PURE__*/React.createElement("div", {
         style: { height: 5, background: "#eee", borderRadius: 3, overflow: "hidden" }
       }, /*#__PURE__*/React.createElement("div", {
-        style: { width: pct + "%", height: "100%", background: pct >= 100 ? "#16a34a" : "#C2410C" }
+        style: { width: pct + "%", height: "100%", background: pct >= 100 ? "#16a34a" : "#EA580C" }
       })), /*#__PURE__*/React.createElement("div", {
         style: { fontSize: 10, color: "#999", marginTop: 1 }
       }, pct, "% pagado"));
@@ -25768,7 +25766,7 @@ function TabPagosCompra({
   }, "\uD83D\uDCB3 saldo a favor"), r.excedente > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#C2410C",
+      color: "#EA580C",
       fontWeight: 600
     }
   }, "incluye ", fmt(r.excedente), " a favor"));
@@ -25808,7 +25806,7 @@ function TabPagosCompra({
   }), /*#__PURE__*/React.createElement(RhStat, {
     label: "Pagado este mes",
     valor: fmt(esteMes),
-    color: "#C2410C"
+    color: "#EA580C"
   }), /*#__PURE__*/React.createElement(RhStat, {
     label: "Saldo a favor disponible",
     valor: fmt(totalDisponible),
@@ -26240,7 +26238,7 @@ function TabPagosCompra({
   }, f.folio, " \xB7 saldo ", fmt(f.saldo))))), facturasProv(aplicar.proveedorId).length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#C2410C"
+      color: "#EA580C"
     }
   }, "Este proveedor no tiene otras facturas con saldo pendiente. Puedes registrar un reembolso."), /*#__PURE__*/React.createElement(Field, {
     label: "Monto a aplicar"
@@ -26437,7 +26435,7 @@ function ModuloCompras({
   }), /*#__PURE__*/React.createElement(RhStat, {
     label: "Por pagar (c/IVA)",
     valor: fmt(stats.porPagar),
-    color: "#C2410C"
+    color: "#EA580C"
   }), /*#__PURE__*/React.createElement(RhStat, {
     label: "Facturas pend.",
     valor: stats.facPend,
@@ -26465,7 +26463,7 @@ function ModuloCompras({
     style: {
       display: "flex",
       overflowX: "auto",
-      borderBottom: "1px solid #FAF6F1"
+      borderBottom: "1px solid #FAFAF9"
     }
   }, /*#__PURE__*/React.createElement(TabBtn, {
     id: "ordenes",
