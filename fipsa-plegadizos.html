@@ -5457,6 +5457,1026 @@ function CatHerramentales({
 // ══════════════════════════════════════════════════════════════════════════════
 // COTIZACIONES
 // ══════════════════════════════════════════════════════════════════════════════
+/* ===== Módulo Cotizaciones (cotizador de cajas plegadizas) — FIPSA Plegadizos ===== */
+const CZ_CSS = `
+.cz-cot{--cz-ink:#16202B;--cz-muted:#5B6B7A;--cz-line:#E3E8EE;--cz-line2:#CBD5E1;--cz-kraft:#B45309;--cz-kraftsoft:#FBEFE2;--cz-res:#0F766E;--cz-ressoft:#E7F6F3;--cz-resink:#0B5A53;--cz-comp:#F1F5F9;--cz-danger:#B91C1C;--cz-mono:ui-monospace,'JetBrains Mono',monospace;font-family:system-ui,'Inter',sans-serif;color:var(--cz-ink);font-size:14px;line-height:1.45}
+.cz-cot *{box-sizing:border-box}
+.cz-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.cz-tbl{display:flex;align-items:baseline;gap:12px}
+.cz-folio{font-weight:700;font-size:18px}
+.cz-count,.cz-muted{color:var(--cz-muted);font-size:12.5px}
+.cz-tbr{display:flex;gap:8px}
+.cz-foliobox{max-width:150px}
+.cz-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+@media(max-width:900px){.cz-grid{grid-template-columns:1fr}}
+.cz-card{background:#fff;border:1px solid var(--cz-line);border-radius:12px;padding:14px 14px 16px;margin-bottom:14px}
+.cz-sech{display:flex;align-items:center;gap:9px;margin:0 0 12px}
+.cz-snum{font-family:var(--cz-mono);font-size:11px;font-weight:600;color:var(--cz-kraft);background:var(--cz-kraftsoft);border-radius:5px;padding:2px 7px}
+.cz-sech h3{font-weight:600;font-size:14px;margin:0}
+.cz-row{display:grid;gap:10px 12px}
+.cz-c2{grid-template-columns:1fr 1fr}.cz-c3{grid-template-columns:1fr 1fr 1fr}.cz-c4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:520px){.cz-c3,.cz-c4{grid-template-columns:1fr 1fr}}
+.cz-fld{display:flex;flex-direction:column;gap:4px}
+.cz-lab{font-size:11.5px;color:var(--cz-muted);font-weight:500;display:flex;justify-content:space-between;gap:6px}
+.cz-hint{font-family:var(--cz-mono);font-size:10px;color:var(--cz-kraft);font-weight:600}
+.cz-inp,.cz-sel{font-size:14px;color:var(--cz-ink);background:#fff;border:1px solid var(--cz-line2);border-radius:8px;padding:8px 10px;width:100%;outline:none}
+.cz-inp{font-family:var(--cz-mono);font-weight:500}
+.cz-text{font-family:inherit}
+.cz-sel{font-family:inherit;font-size:13px}
+.cz-inp:focus,.cz-sel:focus{border-color:var(--cz-res);box-shadow:0 0 0 3px var(--cz-ressoft)}
+.cz-unitwrap{display:flex;gap:8px}.cz-unitwrap .cz-inp{flex:1}.cz-unit{width:92px;flex:none;font-family:var(--cz-mono)}
+.cz-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.cz-chip{font-family:var(--cz-mono);font-size:12px;background:var(--cz-comp);border:1px solid var(--cz-line);border-radius:7px;padding:6px 9px;display:flex;gap:7px;align-items:baseline}
+.cz-chip b{font-weight:600}.cz-chip span{color:var(--cz-muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
+.cz-chip.hi{background:var(--cz-ressoft);border-color:#BFE6DF}.cz-chip.hi b{color:var(--cz-resink)}
+.cz-btn{font-weight:600;font-size:13px;border-radius:8px;padding:8px 14px;border:1px solid var(--cz-line2);background:#fff;color:var(--cz-ink);cursor:pointer}
+.cz-btn:hover{background:#F8FAFC}
+.cz-btn.primary{background:var(--cz-res);border-color:var(--cz-res);color:#fff}.cz-btn.primary:hover{background:var(--cz-resink)}
+.cz-btn.ghost{border-color:transparent;background:transparent;color:var(--cz-muted);padding:6px 8px}.cz-btn.ghost:hover{color:var(--cz-ink)}
+.cz-btn.sm{font-size:12px;padding:5px 9px}.cz-btn.danger{color:var(--cz-danger)}
+.cz-add{margin-top:6px}
+.cz-note{font-size:12px;color:var(--cz-muted);margin:0 0 12px}
+.cz-empty{color:var(--cz-muted);font-size:13px;padding:10px 2px}
+.cz-acab{border:1px solid var(--cz-line);border-radius:10px;padding:11px;margin-bottom:10px;background:#FCFDFE}
+.cz-acabgrid{display:grid;grid-template-columns:1.5fr 1fr .85fr 1fr 1fr;gap:10px;align-items:end}
+@media(max-width:680px){.cz-acabgrid{grid-template-columns:1fr 1fr}}
+.cz-imp{font-family:var(--cz-mono);font-weight:600;font-size:14px;background:var(--cz-comp);border:1px dashed var(--cz-line2);border-radius:8px;padding:8px 10px;text-align:right;color:var(--cz-resink)}
+.cz-del{color:var(--cz-danger);margin-top:8px}
+.cz-boxtype{display:flex;gap:14px;align-items:stretch;margin:12px 0 2px}
+.cz-btleft{flex:1;display:flex;flex-direction:column;gap:8px}
+.cz-btdesc{font-size:11.5px;color:var(--cz-muted);margin:0;line-height:1.4}
+.cz-btart{width:160px;flex:none;border:1px solid var(--cz-line);border-radius:10px;background:#FCFCFA;display:flex;align-items:center;justify-content:center;padding:6px}
+.cz-btart svg{width:100%;height:auto;display:block}
+@media(max-width:560px){.cz-boxtype{flex-direction:column}.cz-btart{width:100%;max-width:200px}}
+.cz-panel{position:sticky;top:14px}
+.cz-price{background:var(--cz-res);color:#fff;border-radius:14px;padding:16px 16px 14px;margin-bottom:14px}
+.cz-pe{font-family:var(--cz-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+.cz-big{font-weight:700;font-size:30px;line-height:1.05;margin:4px 0 0}
+.cz-big small{font-size:13px;font-weight:600;opacity:.8}
+.cz-pf{display:flex;justify-content:space-between;margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.22);font-family:var(--cz-mono);font-size:13px}
+.cz-pf span{opacity:.85}
+.cz-bd{background:#fff;border:1px solid var(--cz-line);border-radius:12px;padding:13px 15px;margin-bottom:13px}
+.cz-bd h4{font-size:12px;font-weight:600;margin:0 0 9px;color:var(--cz-muted);text-transform:uppercase;letter-spacing:.06em}
+.cz-meta{font-family:var(--cz-mono);font-size:11px;color:var(--cz-muted);margin-bottom:9px}
+.cz-svg svg{display:block;width:100%;height:auto;background:#FCFCFA;border:1px solid var(--cz-line);border-radius:8px}
+.cz-bk{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--cz-line);font-size:13px;gap:10px}
+.cz-bk:last-child{border-bottom:0}
+.cz-bk .k{color:var(--cz-muted)}.cz-bk .k .bsub,.cz-bk .k .sub{color:var(--cz-line2);font-size:11px}
+.cz-bk .k .sub{display:block;font-family:var(--cz-mono)}
+.cz-bk .v{font-family:var(--cz-mono);font-weight:600;white-space:nowrap}
+.cz-bk.tot{border-top:2px solid var(--cz-ink);border-bottom:0;margin-top:4px;padding-top:9px}
+.cz-bk.tot .k{color:var(--cz-ink);font-weight:600}.cz-bk.tot .v{font-size:15px}
+.cz-tabla{width:100%;border-collapse:collapse;font-size:13px}
+.cz-tabla th{text-align:left;font-weight:600;color:var(--cz-muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;padding:7px 8px;border-bottom:1px solid var(--cz-line)}
+.cz-tabla td{padding:8px;border-bottom:1px solid var(--cz-line);vertical-align:top}
+.cz-tabla td.mono{font-family:var(--cz-mono)}
+.cz-acts{white-space:nowrap;text-align:right}
+`;
+const CZ_ACAB_TIPOS = ["Barniz máquina", "Barniz UV", "Hot stamping", "Relieve / embossing", "Laminado", "Suaje especial", "Otro"];
+const CZ_BASE_DEFAULT = {
+  "Barniz máquina": "pliego",
+  "Barniz UV": "m2",
+  "Hot stamping": "millar_pieza",
+  "Relieve / embossing": "millar_pieza",
+  "Laminado": "m2",
+  "Suaje especial": "fijo",
+  "Otro": "fijo"
+};
+const CZ_BASE_LABEL = {
+  pliego: "por pliego",
+  millar_pieza: "por millar pza",
+  m2: "por m²",
+  fijo: "importe fijo"
+};
+const CZ_TIPOS = [{
+  id: "tuck",
+  nombre: "Estuche con solapas de inserción (Tuck End)",
+  desc: "Tapas que se insertan arriba y abajo. El estilo más común para farma, cosmética y abarrote."
+}, {
+  id: "tuck_invertido",
+  nombre: "Estuche de solapas invertidas (Reverse Tuck End)",
+  desc: "Las solapas abren en sentidos opuestos; económica y rápida de armar."
+}, {
+  id: "tuck_recto",
+  nombre: "Estuche de solapas rectas (Straight Tuck End)",
+  desc: "Ambas solapas abren hacia el frente; mejor presentación de anaquel."
+}, {
+  id: "fondo_automatico",
+  nombre: "Estuche de fondo automático (Auto-Lock Bottom)",
+  desc: "El fondo se arma solo al levantar la caja; ideal para producto con peso."
+}, {
+  id: "fondo_123",
+  nombre: "Estuche de fondo 1-2-3 / ensamble (Snap-Lock)",
+  desc: "Fondo que se ensambla a mano en tres pasos; bajo costo de suaje."
+}, {
+  id: "sellado",
+  nombre: "Estuche de extremos sellados (Seal End)",
+  desc: "Tapas pegadas arriba y abajo; cierre tipo cereal o detergente."
+}, {
+  id: "tuck_top_fondo_auto",
+  nombre: "Tapa de inserción y fondo automático (Tuck Top Auto-Bottom)",
+  desc: "Tapa tuck arriba y fondo automático; muy usada en e-commerce."
+}, {
+  id: "bandeja",
+  nombre: "Bandeja / charola (Tray)",
+  desc: "Caja abierta tipo charola; exhibición, kits o inserto."
+}, {
+  id: "funda",
+  nombre: "Funda (Sleeve)",
+  desc: "Tubo abierto por ambos extremos que envuelve otra caja o producto."
+}, {
+  id: "almohada",
+  nombre: "Caja tipo almohada (Pillow Box)",
+  desc: "Extremos curvos; presentación para regalo o detalle."
+}, {
+  id: "exhibidor",
+  nombre: "Exhibidor de mostrador (Display)",
+  desc: "Charola con respaldo para punto de venta."
+}];
+const CZ_ART = {
+  tuck: "tuck",
+  tuck_invertido: "tuck",
+  tuck_recto: "tuck",
+  fondo_automatico: "auto",
+  fondo_123: "auto",
+  tuck_top_fondo_auto: "auto",
+  sellado: "seal",
+  bandeja: "tray",
+  exhibidor: "tray",
+  funda: "sleeve",
+  almohada: "pillow"
+};
+const CZ_BLANK = {
+  folio: "",
+  cliente: "",
+  clienteId: "",
+  producto: "",
+  material: "",
+  tipoCaja: "tuck",
+  tintasFrente: 0,
+  tintasReverso: 0,
+  cantidadCliente: 0,
+  largo: 0,
+  ancho: 0,
+  altura: 0,
+  medianil: 0,
+  pinza: 0,
+  solapaPegue: 0,
+  solapaCandado: 0,
+  columnas: 1,
+  filas: 1,
+  rebase: 0,
+  cpcLargo: 0,
+  cpcAncho: 0,
+  gramaje: 0,
+  cajasXHoja: 1,
+  mermaPliegos: 0,
+  costoCpc: 0,
+  cpcUnidad: "kg",
+  costoTiro: 0,
+  costoPegue: 0,
+  utilidadPct: 0,
+  precioReal: 0,
+  acabados: []
+};
+const czN = v => {
+  const x = parseFloat(v);
+  return isFinite(x) ? x : 0;
+};
+const czMxn = v => new Intl.NumberFormat('es-MX', {
+  style: 'currency',
+  currency: 'MXN',
+  minimumFractionDigits: 2
+}).format(isFinite(v) ? v : 0);
+const czNum = (v, d = 2) => new Intl.NumberFormat('es-MX', {
+  minimumFractionDigits: d,
+  maximumFractionDigits: d
+}).format(isFinite(v) ? v : 0);
+const czNombreCliente = c => c ? c.empresa || c.razonSocial || c.nombre || '#' + c.id : '';
+const czNextFolio = lista => {
+  const nums = (lista || []).map(c => parseInt(String(c.folio || '').replace(/\D/g, ''), 10)).filter(x => !isNaN(x));
+  return "COT-" + String((nums.length ? Math.max.apply(null, nums) : 0) + 1).padStart(4, '0');
+};
+const czTipoNombre = id => (CZ_TIPOS.find(t => t.id === id) || {}).nombre || id || '—';
+function czImporteAcabado(a, totalPliegos, piezasProducidas, areaTotalM2) {
+  const costo = czN(a.costo),
+    arranque = czN(a.arranque);
+  let base;
+  if (a.base === 'pliego') base = costo * totalPliegos;else if (a.base === 'millar_pieza') base = costo * (piezasProducidas / 1000);else if (a.base === 'm2') base = costo * areaTotalM2;else base = costo;
+  return base + arranque;
+}
+function czCalc(f) {
+  const largo = czN(f.largo),
+    ancho = czN(f.ancho),
+    altura = czN(f.altura);
+  const medianil = czN(f.medianil),
+    pinza = czN(f.pinza),
+    solapaPegue = czN(f.solapaPegue),
+    solapaCandado = czN(f.solapaCandado),
+    columnas = czN(f.columnas),
+    filas = czN(f.filas),
+    rebase = czN(f.rebase);
+  const cpcLargo = czN(f.cpcLargo),
+    cpcAncho = czN(f.cpcAncho),
+    gramaje = czN(f.gramaje);
+  const tintasFrente = czN(f.tintasFrente),
+    tintasReverso = czN(f.tintasReverso),
+    tintasTotal = tintasFrente + tintasReverso;
+  const cantidadCliente = czN(f.cantidadCliente),
+    cajasXHoja = czN(f.cajasXHoja),
+    mermaPliegos = czN(f.mermaPliegos);
+  const costoCpc = czN(f.costoCpc),
+    cpcUnidad = f.cpcUnidad || 'kg',
+    costoTiro = czN(f.costoTiro),
+    costoPegue = czN(f.costoPegue),
+    utilidadPct = czN(f.utilidadPct);
+  const tmA = ((solapaCandado + ancho + altura + medianil) * filas + (solapaCandado + ancho + altura + solapaCandado + ancho) + pinza) * 0.1;
+  const tmB = ((largo * 2 + ancho * 2 + solapaPegue) * columnas + rebase) * 0.1;
+  const planilla = (filas + 1) * columnas;
+  const cantidadMillar = cantidadCliente / 1000;
+  const pliegosNetos = cajasXHoja > 0 ? cantidadCliente / cajasXHoja : 0;
+  const mermaPiezas = mermaPliegos * cajasXHoja;
+  const totalPliegos = pliegosNetos + mermaPliegos;
+  const piezasProducidas = totalPliegos * cajasXHoja;
+  const gramajeDecimal = gramaje / 1000;
+  const areaPliegoM2 = cpcLargo * cpcAncho * 0.0001;
+  const areaTotalM2 = areaPliegoM2 * totalPliegos;
+  const ctCPC = cpcUnidad === 'm2' ? areaTotalM2 * costoCpc : areaTotalM2 * gramajeDecimal * costoCpc;
+  const ctTiro = totalPliegos * tintasTotal * costoTiro;
+  const ctPegue = piezasProducidas / 1000 * costoPegue;
+  const acabados = Array.isArray(f.acabados) ? f.acabados : [];
+  const acabadoLines = acabados.map(a => ({
+    ...a,
+    importe: czImporteAcabado(a, totalPliegos, piezasProducidas, areaTotalM2)
+  }));
+  const totalAcabados = acabadoLines.reduce((s, a) => s + a.importe, 0);
+  const totalCostos = ctCPC + ctTiro + ctPegue + totalAcabados;
+  const montoUtilidad = totalCostos * (utilidadPct / 100);
+  const precioFinal = totalCostos + montoUtilidad;
+  const precioMillar = cantidadMillar > 0 ? precioFinal / cantidadMillar : 0;
+  return {
+    tmA,
+    tmB,
+    planilla,
+    tintasTotal,
+    cantidadMillar,
+    pliegosNetos,
+    mermaPiezas,
+    totalPliegos,
+    piezasProducidas,
+    gramajeDecimal,
+    areaPliegoM2,
+    areaTotalM2,
+    ctCPC,
+    ctTiro,
+    ctPegue,
+    acabadoLines,
+    totalAcabados,
+    totalCostos,
+    montoUtilidad,
+    precioFinal,
+    precioMillar,
+    columnas,
+    filas
+  };
+}
+function CZField({
+  label,
+  hint,
+  value,
+  onChange,
+  text
+}) {
+  return /*#__PURE__*/React.createElement("label", {
+    className: "cz-fld"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cz-lab"
+  }, /*#__PURE__*/React.createElement("span", null, label), hint && /*#__PURE__*/React.createElement("span", {
+    className: "cz-hint"
+  }, hint)), /*#__PURE__*/React.createElement("input", {
+    className: "cz-inp" + (text ? " cz-text" : ""),
+    type: text ? "text" : "number",
+    step: "any",
+    value: value === undefined || value === null ? '' : value,
+    onChange: e => onChange(e.target.value)
+  }));
+}
+function CZSec({
+  n,
+  title,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("section", {
+    className: "cz-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-sech"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cz-snum"
+  }, n), /*#__PURE__*/React.createElement("h3", null, title)), children);
+}
+function CZImpo({
+  cols,
+  rows
+}) {
+  const C = Math.max(1, Math.min(12, Math.round(cols) || 1));
+  const R = Math.max(1, Math.min(12, (Math.round(rows) || 1) + 1));
+  const W = 320,
+    H = 170,
+    pad = 14,
+    gap = 4;
+  const cw = (W - pad * 2 - gap * (C - 1)) / C,
+    ch = (H - pad * 2 - gap * (R - 1)) / R,
+    cells = [];
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) cells.push(/*#__PURE__*/React.createElement("rect", {
+    key: r + '-' + c,
+    x: pad + c * (cw + gap),
+    y: pad + r * (ch + gap),
+    width: cw,
+    height: ch,
+    rx: "3",
+    fill: "#FBEFE2",
+    stroke: "#B45309",
+    strokeWidth: "1"
+  }));
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 " + W + " " + H,
+    role: "img"
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "3",
+    y: "3",
+    width: W - 6,
+    height: H - 6,
+    rx: "6",
+    fill: "none",
+    stroke: "#CBD5E1",
+    strokeDasharray: "4 4"
+  }), cells);
+}
+function CZBoxArt({
+  id
+}) {
+  const shape = CZ_ART[id] || "tuck";
+  const ink = "#16202B",
+    kraft = "#B45309",
+    fill = "#FBEFE2",
+    side = "#F1E2CE",
+    white = "#FFFFFF";
+  const Box = ({
+    children
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 210 168",
+    role: "img"
+  }, /*#__PURE__*/React.createElement("polygon", {
+    points: "45,62 78,40 168,40 135,62",
+    fill: fill,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "135,62 168,40 168,112 135,134",
+    fill: side,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "45,62 135,62 135,134 45,134",
+    fill: white,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), children);
+  if (shape === "tuck") return /*#__PURE__*/React.createElement(Box, null, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+    d: "M78,40 96,22 186,22 168,40 Z",
+    fill: "#FFF7ED",
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "78",
+    y1: "40",
+    x2: "168",
+    y2: "40",
+    stroke: kraft,
+    strokeWidth: "1.3",
+    strokeDasharray: "5 3"
+  })));
+  if (shape === "auto") return /*#__PURE__*/React.createElement(Box, null, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("path", {
+    d: "M45,134 78,156 168,156 135,134 Z",
+    fill: "#FFF7ED",
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "90",
+    y1: "134",
+    x2: "106",
+    y2: "156",
+    stroke: ink,
+    strokeWidth: "1"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "123",
+    y1: "134",
+    x2: "106",
+    y2: "156",
+    stroke: ink,
+    strokeWidth: "1"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "45",
+    y1: "134",
+    x2: "135",
+    y2: "134",
+    stroke: kraft,
+    strokeWidth: "1.3",
+    strokeDasharray: "5 3"
+  })));
+  if (shape === "seal") return /*#__PURE__*/React.createElement(Box, null, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("line", {
+    x1: "45",
+    y1: "62",
+    x2: "135",
+    y2: "62",
+    stroke: kraft,
+    strokeWidth: "2.4"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "78",
+    y1: "40",
+    x2: "168",
+    y2: "40",
+    stroke: kraft,
+    strokeWidth: "2.4"
+  }), [0, 1, 2, 3, 4, 5, 6].map(i => /*#__PURE__*/React.createElement("line", {
+    key: i,
+    x1: 52 + i * 12,
+    y1: "62",
+    x2: 58 + i * 12,
+    y2: "54",
+    stroke: ink,
+    strokeWidth: "0.8"
+  }))));
+  if (shape === "tray") return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 210 168",
+    role: "img"
+  }, /*#__PURE__*/React.createElement("polygon", {
+    points: "45,86 78,64 168,64 135,86",
+    fill: side,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "45,86 135,86 135,128 45,128",
+    fill: white,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "135,86 168,64 168,106 135,128",
+    fill: fill,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "58,84 148,84 158,74 68,74",
+    fill: "#FBEFE2",
+    stroke: ink,
+    strokeWidth: "1",
+    opacity: "0.7"
+  }));
+  if (shape === "sleeve") return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 210 168",
+    role: "img"
+  }, /*#__PURE__*/React.createElement("polygon", {
+    points: "45,62 78,40 168,40 135,62",
+    fill: fill,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "135,62 168,40 168,112 135,134",
+    fill: side,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "45,62 135,62 135,134 45,134",
+    fill: "none",
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polygon", {
+    points: "53,67 127,67 127,127 53,127",
+    fill: "#F3F4F6",
+    stroke: ink,
+    strokeWidth: "1",
+    strokeDasharray: "4 3"
+  }));
+  if (shape === "pillow") return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 210 168",
+    role: "img"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M60,54 Q82,86 60,118 L150,118 Q128,86 150,54 Z",
+    fill: fill,
+    stroke: ink,
+    strokeWidth: "1.7",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M60,54 Q82,86 60,118",
+    fill: "none",
+    stroke: kraft,
+    strokeWidth: "1.3",
+    strokeDasharray: "5 3"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M150,54 Q128,86 150,118",
+    fill: "none",
+    stroke: kraft,
+    strokeWidth: "1.3",
+    strokeDasharray: "5 3"
+  }));
+  return /*#__PURE__*/React.createElement(Box, null);
+}
+function CZForm({
+  inicial,
+  clientes,
+  modoEdicion,
+  onGuardar,
+  onCancelar,
+  puedeGuardar
+}) {
+  const [f, setF] = useState(() => ({
+    ...CZ_BLANK,
+    ...inicial,
+    acabados: inicial && inicial.acabados ? inicial.acabados.map(a => ({
+      ...a
+    })) : []
+  }));
+  const set = k => v => setF(s => ({
+    ...s,
+    [k]: v
+  }));
+  const r = useMemo(() => czCalc(f), [f]);
+  const cpcEquiv = (f.cpcUnidad || 'kg') === 'kg' ? czN(f.costoCpc) * r.gramajeDecimal : r.gramajeDecimal > 0 ? czN(f.costoCpc) / r.gramajeDecimal : 0;
+  const cpcEquivUnit = (f.cpcUnidad || 'kg') === 'kg' ? '/m²' : '/kg';
+  const addAc = () => setF(s => ({
+    ...s,
+    acabados: [...(s.acabados || []), {
+      id: Date.now(),
+      tipo: "Barniz máquina",
+      base: "pliego",
+      costo: 0,
+      arranque: 0
+    }]
+  }));
+  const updAc = (id, k, v) => setF(s => ({
+    ...s,
+    acabados: s.acabados.map(a => a.id === id ? {
+      ...a,
+      [k]: v,
+      ...(k === 'tipo' ? {
+        base: CZ_BASE_DEFAULT[v] || a.base
+      } : {})
+    } : a)
+  }));
+  const delAc = id => setF(s => ({
+    ...s,
+    acabados: s.acabados.filter(a => a.id !== id)
+  }));
+  const tipoDesc = (CZ_TIPOS.find(t => t.id === f.tipoCaja) || {}).desc;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "cz-toolbar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-tbl"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cz-folio"
+  }, modoEdicion ? 'Editar' : 'Nueva', " cotización"), /*#__PURE__*/React.createElement("input", {
+    className: "cz-inp cz-foliobox",
+    type: "text",
+    value: f.folio || '',
+    onChange: e => set('folio')(e.target.value),
+    placeholder: "Folio"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "cz-tbr"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "cz-btn ghost",
+    onClick: onCancelar
+  }, "Cancelar"), puedeGuardar && /*#__PURE__*/React.createElement("button", {
+    className: "cz-btn primary",
+    onClick: () => onGuardar(f, r)
+  }, "Guardar cotización"))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-grid"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(CZSec, {
+    n: "01",
+    title: "Datos generales"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c2",
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "cz-fld"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cz-lab"
+  }, /*#__PURE__*/React.createElement("span", null, "Cliente")), /*#__PURE__*/React.createElement("select", {
+    className: "cz-sel",
+    value: f.clienteId || '',
+    onChange: e => {
+      const id = e.target.value;
+      const c = (clientes || []).find(x => String(x.id) === String(id));
+      setF(s => ({
+        ...s,
+        clienteId: id,
+        cliente: czNombreCliente(c)
+      }));
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "— Selecciona cliente —"), (clientes || []).map(c => /*#__PURE__*/React.createElement("option", {
+    key: c.id,
+    value: c.id
+  }, czNombreCliente(c))))), /*#__PURE__*/React.createElement(CZField, {
+    label: "Producto",
+    text: true,
+    value: f.producto,
+    onChange: set('producto')
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "cz-boxtype"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-btleft"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "cz-fld"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cz-lab"
+  }, /*#__PURE__*/React.createElement("span", null, "Tipo de caja plegadiza")), /*#__PURE__*/React.createElement("select", {
+    className: "cz-sel",
+    value: f.tipoCaja,
+    onChange: e => set('tipoCaja')(e.target.value)
+  }, CZ_TIPOS.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t.id,
+    value: t.id
+  }, t.nombre)))), /*#__PURE__*/React.createElement("p", {
+    className: "cz-btdesc"
+  }, tipoDesc)), /*#__PURE__*/React.createElement("div", {
+    className: "cz-btart"
+  }, /*#__PURE__*/React.createElement(CZBoxArt, {
+    id: f.tipoCaja
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c4",
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement(CZField, {
+    label: "Material",
+    text: true,
+    value: f.material,
+    onChange: set('material')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Tintas frente",
+    value: f.tintasFrente,
+    onChange: set('tintasFrente')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Tintas reverso",
+    value: f.tintasReverso,
+    onChange: set('tintasReverso')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Cantidad solicitada",
+    hint: "cajas",
+    value: f.cantidadCliente,
+    onChange: set('cantidadCliente')
+  }))), /*#__PURE__*/React.createElement(CZSec, {
+    n: "02",
+    title: "Acabados"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "cz-note"
+  }, "Agrega uno o varios. Cada acabado define cómo se cobra (por pliego, por m², por millar de piezas o importe fijo) y se suma al costo."), (f.acabados || []).length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "cz-empty"
+  }, "Sin acabados todavía."), (f.acabados || []).map(a => {
+    const imp = czImporteAcabado(a, r.totalPliegos, r.piezasProducidas, r.areaTotalM2);
+    return /*#__PURE__*/React.createElement("div", {
+      className: "cz-acab",
+      key: a.id
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "cz-acabgrid"
+    }, /*#__PURE__*/React.createElement("label", {
+      className: "cz-fld"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cz-lab"
+    }, /*#__PURE__*/React.createElement("span", null, "Acabado")), /*#__PURE__*/React.createElement("select", {
+      className: "cz-sel",
+      value: a.tipo,
+      onChange: e => updAc(a.id, 'tipo', e.target.value)
+    }, CZ_ACAB_TIPOS.map(t => /*#__PURE__*/React.createElement("option", {
+      key: t,
+      value: t
+    }, t)))), /*#__PURE__*/React.createElement("label", {
+      className: "cz-fld"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cz-lab"
+    }, /*#__PURE__*/React.createElement("span", null, "Se cobra")), /*#__PURE__*/React.createElement("select", {
+      className: "cz-sel",
+      value: a.base,
+      onChange: e => updAc(a.id, 'base', e.target.value)
+    }, /*#__PURE__*/React.createElement("option", {
+      value: "pliego"
+    }, "por pliego"), /*#__PURE__*/React.createElement("option", {
+      value: "m2"
+    }, "por m²"), /*#__PURE__*/React.createElement("option", {
+      value: "millar_pieza"
+    }, "por millar pza"), /*#__PURE__*/React.createElement("option", {
+      value: "fijo"
+    }, "importe fijo"))), /*#__PURE__*/React.createElement("label", {
+      className: "cz-fld"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cz-lab"
+    }, /*#__PURE__*/React.createElement("span", null, a.base === 'fijo' ? 'Importe' : 'Costo unit.')), /*#__PURE__*/React.createElement("input", {
+      className: "cz-inp",
+      type: "number",
+      step: "any",
+      value: a.costo,
+      onChange: e => updAc(a.id, 'costo', e.target.value)
+    })), /*#__PURE__*/React.createElement("label", {
+      className: "cz-fld"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cz-lab"
+    }, /*#__PURE__*/React.createElement("span", null, "Arranque / cliché")), /*#__PURE__*/React.createElement("input", {
+      className: "cz-inp",
+      type: "number",
+      step: "any",
+      value: a.arranque,
+      onChange: e => updAc(a.id, 'arranque', e.target.value)
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "cz-fld"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "cz-lab"
+    }, /*#__PURE__*/React.createElement("span", null, "Importe")), /*#__PURE__*/React.createElement("div", {
+      className: "cz-imp"
+    }, czMxn(imp)))), /*#__PURE__*/React.createElement("button", {
+      className: "cz-btn ghost cz-del",
+      onClick: () => delAc(a.id)
+    }, "Quitar acabado"));
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "cz-btn cz-add",
+    onClick: addAc
+  }, "+ Agregar acabado")), /*#__PURE__*/React.createElement(CZSec, {
+    n: "03",
+    title: "Pre-Prensa · Imposición"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c4"
+  }, /*#__PURE__*/React.createElement(CZField, {
+    label: "Medianil",
+    value: f.medianil,
+    onChange: set('medianil')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Pinza",
+    value: f.pinza,
+    onChange: set('pinza')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Solapa pegue",
+    value: f.solapaPegue,
+    onChange: set('solapaPegue')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Solapa candado",
+    value: f.solapaCandado,
+    onChange: set('solapaCandado')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Columnas",
+    value: f.columnas,
+    onChange: set('columnas')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Filas",
+    value: f.filas,
+    onChange: set('filas')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Rebase",
+    value: f.rebase,
+    onChange: set('rebase')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Cajas x hoja",
+    hint: "planilla " + czNum(r.planilla, 0),
+    value: f.cajasXHoja,
+    onChange: set('cajasXHoja')
+  }))), /*#__PURE__*/React.createElement(CZSec, {
+    n: "04",
+    title: "Especificaciones de producto"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c3"
+  }, /*#__PURE__*/React.createElement(CZField, {
+    label: "Largo (mm)",
+    value: f.largo,
+    onChange: set('largo')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Ancho (mm)",
+    value: f.ancho,
+    onChange: set('ancho')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Altura (mm)",
+    value: f.altura,
+    onChange: set('altura')
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chips"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "T/M A"), /*#__PURE__*/React.createElement("b", null, czNum(r.tmA))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "T/M B"), /*#__PURE__*/React.createElement("b", null, czNum(r.tmB))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "Planilla"), /*#__PURE__*/React.createElement("b", null, czNum(r.planilla, 0))))), /*#__PURE__*/React.createElement(CZSec, {
+    n: "05",
+    title: "Especificaciones de producción"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c4"
+  }, /*#__PURE__*/React.createElement(CZField, {
+    label: "Tamaño C/P/C largo",
+    value: f.cpcLargo,
+    onChange: set('cpcLargo')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Tamaño C/P/C ancho",
+    value: f.cpcAncho,
+    onChange: set('cpcAncho')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Gramaje",
+    hint: "g/m²",
+    value: f.gramaje,
+    onChange: set('gramaje')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Merma / arranque",
+    hint: "= " + czNum(r.mermaPiezas, 0) + " cajas",
+    value: f.mermaPliegos,
+    onChange: set('mermaPliegos')
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chips"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "Pliegos netos"), /*#__PURE__*/React.createElement("b", null, czNum(r.pliegosNetos))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "+ merma"), /*#__PURE__*/React.createElement("b", null, czNum(czN(f.mermaPliegos)))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip hi"
+  }, /*#__PURE__*/React.createElement("span", null, "Total pliegos"), /*#__PURE__*/React.createElement("b", null, czNum(r.totalPliegos))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "Piezas producidas"), /*#__PURE__*/React.createElement("b", null, czNum(r.piezasProducidas, 0))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "Área pliego (m²)"), /*#__PURE__*/React.createElement("b", null, czNum(r.areaPliegoM2, 4))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-chip"
+  }, /*#__PURE__*/React.createElement("span", null, "m² totales"), /*#__PURE__*/React.createElement("b", null, czNum(r.areaTotalM2))))), /*#__PURE__*/React.createElement(CZSec, {
+    n: "06",
+    title: "Costos unitarios y utilidad"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c2",
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-fld"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "cz-lab"
+  }, /*#__PURE__*/React.createElement("span", null, "Costo del sustrato (cartón)"), /*#__PURE__*/React.createElement("span", {
+    className: "cz-hint"
+  }, "≈ ", czMxn(cpcEquiv), " ", cpcEquivUnit)), /*#__PURE__*/React.createElement("div", {
+    className: "cz-unitwrap"
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "cz-inp",
+    type: "number",
+    step: "any",
+    value: f.costoCpc,
+    onChange: e => set('costoCpc')(e.target.value)
+  }), /*#__PURE__*/React.createElement("select", {
+    className: "cz-sel cz-unit",
+    value: f.cpcUnidad,
+    onChange: e => set('cpcUnidad')(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "kg"
+  }, "$ / kg"), /*#__PURE__*/React.createElement("option", {
+    value: "m2"
+  }, "$ / m²")))), /*#__PURE__*/React.createElement(CZField, {
+    label: "Costo tiro",
+    value: f.costoTiro,
+    onChange: set('costoTiro')
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "cz-row cz-c3"
+  }, /*#__PURE__*/React.createElement(CZField, {
+    label: "Costo pegue",
+    hint: "/ millar",
+    value: f.costoPegue,
+    onChange: set('costoPegue')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Utilidad %",
+    value: f.utilidadPct,
+    onChange: set('utilidadPct')
+  }), /*#__PURE__*/React.createElement(CZField, {
+    label: "Precio real",
+    hint: "manual",
+    value: f.precioReal,
+    onChange: set('precioReal')
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-panel"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-price"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cz-pe"
+  }, "Precio millar (calculado)"), /*#__PURE__*/React.createElement("div", {
+    className: "cz-big"
+  }, czMxn(r.precioMillar), " ", /*#__PURE__*/React.createElement("small", null, "/ millar")), /*#__PURE__*/React.createElement("div", {
+    className: "cz-pf"
+  }, /*#__PURE__*/React.createElement("span", null, "Precio final"), /*#__PURE__*/React.createElement("b", null, czMxn(r.precioFinal))), czN(f.precioReal) > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "cz-pf"
+  }, /*#__PURE__*/React.createElement("span", null, "Precio real (manual)"), /*#__PURE__*/React.createElement("b", null, czMxn(czN(f.precioReal))))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bd"
+  }, /*#__PURE__*/React.createElement("h4", null, "Imposición · ", czTipoNombre(f.tipoCaja)), /*#__PURE__*/React.createElement("div", {
+    className: "cz-meta"
+  }, czNum(r.columnas, 0), " columnas × ", czNum(r.filas, 0), "+1 filas · ", czNum(r.planilla, 0), " piezas/hoja"), /*#__PURE__*/React.createElement("div", {
+    className: "cz-svg"
+  }, /*#__PURE__*/React.createElement(CZImpo, {
+    cols: r.columnas,
+    rows: r.filas
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bd"
+  }, /*#__PURE__*/React.createElement("h4", null, "Pliegos a producir"), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Pliegos netos"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czNum(r.pliegosNetos))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Merma / arranque", /*#__PURE__*/React.createElement("span", {
+    className: "sub"
+  }, czNum(r.mermaPiezas, 0), " cajas")), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, "+", czNum(czN(f.mermaPliegos)))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk tot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Total pliegos"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czNum(r.totalPliegos))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Piezas producidas"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czNum(r.piezasProducidas, 0)))), r.acabadoLines.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "cz-bd"
+  }, /*#__PURE__*/React.createElement("h4", null, "Acabados"), r.acabadoLines.map(a => /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk",
+    key: a.id
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, a.tipo, " ", /*#__PURE__*/React.createElement("span", {
+    className: "bsub"
+  }, "· ", CZ_BASE_LABEL[a.base])), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(a.importe)))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk tot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Total acabados"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.totalAcabados)))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bd"
+  }, /*#__PURE__*/React.createElement("h4", null, "Costo / Beneficio"), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Cartón (", (f.cpcUnidad || 'kg') === 'm2' ? '$/m²' : '$/kg', ")"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.ctCPC))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Tiro ", /*#__PURE__*/React.createElement("span", {
+    className: "bsub"
+  }, "· ", czNum(r.tintasTotal, 0), " tintas (F+R)")), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.ctTiro))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Pegue"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.ctPegue))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Acabados"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.totalAcabados))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk tot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Total costos"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.totalCostos))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Monto utilidad (", czNum(czN(f.utilidadPct), 0), "%)"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.montoUtilidad))), /*#__PURE__*/React.createElement("div", {
+    className: "cz-bk tot"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "k"
+  }, "Precio final"), /*#__PURE__*/React.createElement("span", {
+    className: "v"
+  }, czMxn(r.precioFinal)))))));
+}
 function ModuloCotizaciones({
   foco,
   setFoco,
@@ -5475,3129 +6495,108 @@ function ModuloCotizaciones({
   pedidos = []
 }) {
   const [view, setView] = useState("list");
-  const [viewMode, setViewMode] = useState("tabla");
-  const [selected, setSelected] = useState(null);
-  const [filtro, setFiltro] = useState("Todos");
-  const [search, setSearch] = useState("");
-  const [filterEstado, setFilterEstado] = useState("Todos");
-  const [banner, setBanner] = useState(null);
-  const [showCotFormal, setShowCotFormal] = useState(false);
-  const [editandoId, setEditandoId] = useState(null);
-  const [historialCambios, setHistorialCambios] = useState([]);
-  const [mermaPorc, setMermaPorc] = useState("7");
-  // ── Vigencia y transiciones automáticas de estado ──────────
-  const VIG_DIAS = 15; // vigencia fija (días naturales)
-  const SEG_HITOS = [3, 8, 14]; // días de seguimiento: 3, 8 y un día antes de vencer
-  const parseFechaCot = f => { if (!f) return null; const a = String(f).split("-").map(Number); return (a.length === 3 && a[0] && a[1] && a[2]) ? new Date(a[0], a[1] - 1, a[2]) : null; };
-  const hoy0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
-  const diasDesde = f => { const dt = parseFechaCot(f); if (!dt) return null; return Math.floor((hoy0().getTime() - dt.getTime()) / 86400000); };
-  const tienePedido = c => (pedidos || []).some(p => p.cotizacionFolio === c.folio);
-  const revisadoRef = useRef(false);
-  useEffect(() => {
-    if (revisadoRef.current) return;
-    if (!Array.isArray(cotizaciones) || !cotizaciones.length) return;
-    const hoy = hoy0();
-    let cambios = false;
-    const nueva = cotizaciones.map(c => {
-      const fv = parseFechaCot(c.fecha);
-      if (c.estado === "Enviada" && fv) {
-        const venc = new Date(fv); venc.setDate(venc.getDate() + VIG_DIAS);
-        if (hoy > venc) { cambios = true; return { ...c, estado: "Vencida" }; }
-      }
-      if (c.estado === "Aceptada" && c.folio && fv && !tienePedido(c)) {
-        const venc6 = new Date(fv); venc6.setMonth(venc6.getMonth() + 6);
-        if (hoy > venc6) { cambios = true; return { ...c, estado: "Recotizar" }; }
-      }
-      return c;
-    });
-    revisadoRef.current = true;
-    if (cambios) save(nueva);
-  }, [cotizaciones, pedidos]);
-  // Seguimientos pendientes: cotizaciones Enviadas cuyo hito (3/8/14) ya llegó y no se ha marcado enviado
-  const seguimientosPend = (cotizaciones || []).filter(c => c.estado === "Enviada").map(c => {
-    const d = diasDesde(c.fecha);
-    if (d == null) return null;
-    const enviados = c.segEnviados || [];
-    const pendiente = SEG_HITOS.filter(h => d >= h && !enviados.includes(h)).pop();
-    return pendiente ? { cot: c, hito: pendiente, dias: d } : null;
-  }).filter(Boolean);
-  const correoSeguimiento = item => {
-    const c = item.cot;
-    const cl = clientes.find(x => String(x.id) === String(c.clienteId)) || {};
-    const para = cl.email || "";
-    const restantes = Math.max(0, VIG_DIAS - item.dias);
-    const asunto = "Seguimiento a su cotizaci\u00f3n " + (c.folio || "") + " - FIPSA Plegadizos";
-    const cuerpo = "Estimado(a) " + (cl.contacto || cl.empresa || "cliente") + ":\n\n" +
-      "Le damos seguimiento a la cotizaci\u00f3n " + (c.folio || "") + (c.descripcion ? (" (" + c.descripcion + ")") : "") + " que le enviamos.\n\n" +
-      "La cotizaci\u00f3n tiene una vigencia de " + VIG_DIAS + " d\u00edas naturales" + (restantes > 0 ? (", le quedan aproximadamente " + restantes + " d\u00eda(s) de vigencia") : "") + ". Quedamos atentos a sus comentarios para avanzar con su pedido.\n\n" +
-      "Saludos cordiales,\nFIPSA Plegadizos";
-    // marcar el hito como enviado
-    const enviados = [...(c.segEnviados || []), item.hito];
-    save((cotizaciones || []).map(x => x.id === c.id ? { ...x, segEnviados: enviados } : x));
-    window.open("mailto:" + encodeURIComponent(para) + "?subject=" + encodeURIComponent(asunto) + "&body=" + encodeURIComponent(cuerpo), "_blank");
-  };
-  // {tipo:"saved"|"catalog", cot:obj}
-
-  // Formulario
-  const [clienteId, setClienteId] = useState("");
-  const [vendedorId, setVendedorId] = useState("");
-  const [folioManual, setFolioManual] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [tiempoEntrega, setTiempoEntrega] = useState("10 a 12 días hábiles");
-  const [tipoCaja, setTipoCaja] = useState("Caja Regular (RSC)");
-  const [tipoLamina, setTipoLamina] = useState("Sencilla");
-  const [flauta, setFlauta] = useState("Onda C");
-  const [ect, setEct] = useState("ECT-32");
-  const [colorPapel, setColorPapel] = useState("Kraft");
-  const [tintas, setTintas] = useState("Sin impresión");
-  const [acabado, setAcabado] = useState("Pegado");
-  const [largoInt, setLargoInt] = useState("");
-  const [anchoInt, setAnchoInt] = useState("");
-  const [altoInt, setAltoInt] = useState("");
-  const [solapaExtra, setSolapaExtra] = useState(false);
-  const [esTroquelada, setEsTroquelada] = useState(false);
-  const [esMaquila, setEsMaquila] = useState(false);
-  const [maquilaProcesos, setMaquilaProcesos] = useState({});
-  const [largoLamDir, setLargoLamDir] = useState("");
-  const [anchoLamDir, setAnchoLamDir] = useState("");
-  const [cantidad, setCantidad] = useState("");
-  const [precioLaminaM2, setPrecioLaminaM2] = useState("");
-  const [utilidad, setUtilidad] = useState(30);
-  const [grabadosCosto, setGrabadosCosto] = useState("");
-  const [grabadosCobrar, setGrabadosCobrar] = useState(false);
-  const [costoManoObra, setCostoManoObra] = useState("2.50");
-  const [cantidadesComp, setCantidadesComp] = useState([]); // cantidades adicionales para cotización por volumen
-
-  const resetForm = () => {
-    setClienteId("");
-    setVendedorId("");
-    setFolioManual("");
-    setDescripcion("");
-    setTipoCaja("Caja Regular (RSC)");
-    setTipoLamina("Sencilla");
-    setFlauta("Onda C");
-    setEct("ECT-32");
-    setColorPapel("Kraft");
-    setTintas("Sin impresión");
-    setAcabado("Pegado");
-    setLargoInt("");
-    setAnchoInt("");
-    setAltoInt("");
-    setSolapaExtra(false);
-    setEsTroquelada(false);
-    setEsMaquila(false);
-    setMaquilaProcesos({});
-    setLargoLamDir("");
-    setAnchoLamDir("");
-    setCantidad("");
-    setPrecioLaminaM2("");
-    setUtilidad(30);
-    setGrabadosCosto("");
-    setGrabadosCobrar(false);
-    setCostoManoObra("2.50");
-    setMermaPorc("7");
-    setEditandoId(null);
-    setHistorialCambios([]);
-    setCantidadesComp([]);
-  };
-
-  // Normaliza cantidadesComp: convierte strings viejos a objetos
-  const normComp = cot => (cot.cantidadesComp || []).map(q => typeof q === "object" ? q : {
-    cantidad: String(q),
-    costoManoObra: cot.costoManoObra || "2.50",
-    utilidad: cot.utilidad || 30
-  });
-  const normRef = useRef(false);
-  useEffect(() => {
-    if (normRef.current) return;
-    if (!cotizaciones || cotizaciones.length === 0) return;
-    normRef.current = true;
-    let changed = false;
-    const norm = cotizaciones.map(c => {
-      const p = parseFloat(c.precioSugPieza) || 0;
-      const p2 = round2(p);
-      if (Math.abs(p2 - p) < 0.0000001) return c;
-      changed = true;
-      const cant = parseInt(c.cantidad) || 0;
-      const t2 = round2(p2 * cant);
-      const out = { ...c, precioSugPieza: p2, precioSugTotal: t2 };
-      if (typeof c.utilBruta === "number" && c.subtotalTotal != null) {
-        const ub = round2(t2 - (parseFloat(c.subtotalTotal) || 0));
-        const isr = round2(ub > 0 ? ub * PARAMS.tasaISR / 100 : 0);
-        const seg = round2(ub > 0 ? ub * PARAMS.tasaSegSocial / 100 : 0);
-        out.utilBruta = ub;
-        out.utilNeta = round2(ub - isr - seg);
-      }
-      return out;
-    });
-    if (changed) save(norm);
-  }, [cotizaciones]);
-  const folio = folioManual.trim() || genFolio("COT", cotizaciones, "folio");
-  const cl = clientes.find(c => c.id === parseInt(clienteId)) || null;
-  const calc = calcLamina({
-    largoInt,
-    anchoInt,
-    altoInt,
-    tipoLamina,
-    solapaExtra,
-    esTroquelada,
-    largoLamDir,
-    anchoLamDir,
-    tintas,
-    acabado,
-    cantidad,
-    precioLaminaM2,
-    utilidad,
-    grabadosCosto,
-    grabadosCobrar,
-    costoManoObra,
-    mermaPorc
-  });
-  // ── Cálculo de maquila: suma de procesos seleccionados × cantidad (precio ya incluye utilidad) ──
-  const calcMaquila = (() => {
-    if (!esMaquila) return null;
-    const cant = parseInt(cantidad);
-    if (!cant) return null;
-    const procesosSel = PROCESOS_MAQUILA
-      .filter(p => maquilaProcesos[p.key]?.activo)
-      .map(p => ({ key: p.key, label: p.label, precioUnit: parseFloat(maquilaProcesos[p.key]?.precio) || 0 }))
-      .filter(p => p.precioUnit > 0);
-    if (procesosSel.length === 0) return null;
-    const precioSugPieza = round2(procesosSel.reduce((s, p) => s + p.precioUnit, 0));
-    const precioSugTotal = round2(precioSugPieza * cant);
-    return { procesosSel, precioSugPieza, precioSugTotal, cant };
-  })();
-  // Resultado unificado: maquila o fabricación normal
-  const resultado = esMaquila ? calcMaquila : calc;
-  // Calcular precios para cantidades adicionales de comparación
-  const calcsComp = cantidadesComp.map((row, i) => ({
-    row,
-    result: calcLamina({
-      largoInt,
-      anchoInt,
-      altoInt,
-      tipoLamina,
-      solapaExtra,
-      esTroquelada,
-      largoLamDir,
-      anchoLamDir,
-      tintas,
-      acabado,
-      cantidad: row.cantidad,
-      precioLaminaM2,
-      utilidad: row.utilidad ?? utilidad,
-      grabadosCosto,
-      grabadosCobrar,
-      costoManoObra: row.costoManoObra ?? costoManoObra,
-      mermaPorc
-    })
-  })).filter(x => x.result);
-  const fechaCot = today();
-  const fechaVig = () => {
-    const d = new Date();
-    d.setDate(d.getDate() + 15);
-    return d.toLocaleDateString("es-MX", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    });
-  };
-  const openEdit = cot => {
-    setEditandoId(cot.id);
-    setFolioManual(cot.folio);
-    setClienteId(String(cot.clienteId));
-    setVendedorId(cot.vendedorId ? String(cot.vendedorId) : "");
-    setDescripcion(cot.descripcion || "");
-    setTiempoEntrega(cot.tiempoEntrega || "10 a 12 días hábiles");
-    setTipoCaja(cot.tipoCaja || "Caja Regular (RSC)");
-    setTipoLamina(cot.tipoLamina || "Sencilla");
-    setFlauta(cot.flauta || "Onda C");
-    setEct(cot.ect || "ECT-32");
-    setColorPapel(cot.colorPapel || "Kraft");
-    setTintas(cot.tintas || "Sin impresión");
-    setAcabado(cot.acabado || "Pegado");
-    setLargoInt(cot.largoInt || "");
-    setAnchoInt(cot.anchoInt || "");
-    setAltoInt(cot.altoInt || "");
-    setEsTroquelada(cot.esTroquelada || false);
-    setEsMaquila(cot.esMaquila || false);
-    setMaquilaProcesos(cot.maquilaProcesos || {});
-    setLargoLamDir(cot.largoLamDir || "");
-    setAnchoLamDir(cot.anchoLamDir || "");
-    setSolapaExtra(cot.solapaExtra || false);
-    setCantidad(cot.cantidad || "");
-    setPrecioLaminaM2(cot.precioLaminaM2 || "");
-    setUtilidad(cot.utilidad || 30);
-    setGrabadosCosto(cot.grabadosCosto || "");
-    setGrabadosCobrar(cot.grabadosCobrar || false);
-    setCostoManoObra(cot.costoManoObra || "2.50");
-    setMermaPorc(cot.mermaPorc || "7");
-    setCantidadesComp(normComp(cot));
-    setHistorialCambios(cot.historialCambios || []);
-    setShowCotFormal(false);
+  const [editId, setEditId] = useState(null);
+  const lista = Array.isArray(cotizaciones) ? cotizaciones : [];
+  const puedeGuardar = !!(editId ? canEdit : canCreate);
+  const nuevo = () => {
+    setEditId(null);
     setView("form");
   };
-
-  // Duplicar cotización como nueva (no edita la original)
-  const duplicarCot = cot => {
-    setEditandoId(null); // NUEVA cotización, no edición
-    setFolioManual(""); // auto-genera folio nuevo
-    setClienteId(String(cot.clienteId));
-    setVendedorId(cot.vendedorId ? String(cot.vendedorId) : "");
-    setDescripcion(cot.descripcion || "");
-    setTiempoEntrega(cot.tiempoEntrega || "10 a 12 días hábiles");
-    setTipoCaja(cot.tipoCaja || "Caja Regular (RSC)");
-    setTipoLamina(cot.tipoLamina || "Sencilla");
-    setFlauta(cot.flauta || "Onda C");
-    setEct(cot.ect || "ECT-32");
-    setColorPapel(cot.colorPapel || "Kraft");
-    setTintas(cot.tintas || "Sin impresión");
-    setAcabado(cot.acabado || "Pegado");
-    setLargoInt(cot.largoInt || "");
-    setAnchoInt(cot.anchoInt || "");
-    setAltoInt(cot.altoInt || "");
-    setEsTroquelada(cot.esTroquelada || false);
-    setEsMaquila(cot.esMaquila || false);
-    setMaquilaProcesos(cot.maquilaProcesos || {});
-    setLargoLamDir(cot.largoLamDir || "");
-    setAnchoLamDir(cot.anchoLamDir || "");
-    setSolapaExtra(cot.solapaExtra || false);
-    setCantidad(cot.cantidad || "");
-    setPrecioLaminaM2(cot.precioLaminaM2 || "");
-    setUtilidad(cot.utilidad || 30);
-    setGrabadosCosto(cot.grabadosCosto || "");
-    setGrabadosCobrar(cot.grabadosCobrar || false);
-    setCostoManoObra(cot.costoManoObra || "2.50");
-    setMermaPorc(cot.mermaPorc || "7");
-    setCantidadesComp(normComp(cot));
-    setHistorialCambios([{
-      fecha: today(),
-      folio: cot.folio,
-      nota: `Creada como copia de ${cot.folio}`
-    }]);
-    setShowCotFormal(false);
+  const editar = c => {
+    setEditId(c.id);
     setView("form");
   };
-  const guardar = async () => {
-    if (!resultado || !cl) return;
-    if (!vendedorId && (empleados || []).some(x => x.esVendedor)) { window.alert("Selecciona un vendedor para esta cotizaci\u00f3n."); return; }
-    if (editandoId) {
-      // Modo edición — registrar cambio
-      const original = cotizaciones.find(c => c.id === editandoId);
-      const cambio = {
-        fecha: today(),
-        folio: original?.folio,
-        nota: `Editada — ${new Date().toLocaleTimeString("es-MX")}`,
-        campos: {
-          cantidad,
-          precioLaminaM2,
-          utilidad,
-          costoManoObra,
-          mermaPorc
-        }
-      };
-      const nuevosHistorial = [cambio, ...(historialCambios || [])];
-      const actualizada = {
-        ...original,
-        clienteId: cl.id,
-        vendedorId,
-        descripcion,
-        tipoCaja,
-        tipoLamina,
-        flauta,
-        ect,
-        colorPapel,
-        tintas,
-        acabado,
-        tiempoEntrega,
-        largoInt,
-        anchoInt,
-        altoInt,
-        esTroquelada,
-        largoLamDir,
-        anchoLamDir,
-        solapaExtra,
-        cantidad: String(cantidad),
-        precioLaminaM2: String(precioLaminaM2),
-        utilidad,
-        grabadosCosto,
-        grabadosCobrar,
-        costoManoObra,
-        mermaPorc,
-        esMaquila,
-        maquilaProcesos: esMaquila ? maquilaProcesos : {},
-        largoLam: calc ? calc.largoLam : null,
-        anchoLam: calc ? calc.anchoLam : null,
-        areaM2pieza: calc ? calc.areaM2pieza : null,
-        m2total: calc ? calc.m2total : null,
-        precioSugPieza: resultado.precioSugPieza,
-        precioSugTotal: resultado.precioSugTotal,
-        subtotalTotal: calc ? calc.subtotalTotal : resultado.precioSugTotal,
-        utilBruta: calc ? calc.utilBruta : null,
-        utilNeta: calc ? calc.utilNeta : null,
-        cantidadesComp,
-        historialCambios: nuevosHistorial
-      };
-      await save(cotizaciones.map(c => c.id === editandoId ? actualizada : c));
-      resetForm();
-      setView("list");
+  const borrar = c => {
+    if (window.confirm("¿Eliminar la cotización " + (c.folio || "") + "? Esta acción no se puede deshacer.")) save(lista.filter(x => x.id !== c.id));
+  };
+  const onGuardar = (f, r) => {
+    const snap = {
+      totalCostos: r.totalCostos,
+      precioFinal: r.precioFinal,
+      precioMillar: r.precioMillar,
+      totalPliegos: r.totalPliegos,
+      piezasProducidas: r.piezasProducidas,
+      totalTintas: r.tintasTotal,
+      totalAcabados: r.totalAcabados
+    };
+    if (editId) {
+      save(lista.map(c => c.id === editId ? {
+        ...c,
+        ...f,
+        ...snap,
+        actualizada: new Date().toISOString()
+      } : c));
     } else {
-      // Nueva cotización
-      const nueva = {
+      const obj = {
+        ...f,
+        ...snap,
         id: Date.now(),
-        folio,
-        fecha: fechaCot,
-        vigencia: fechaVig(),
-        clienteId: cl.id,
-        vendedorId,
-        descripcion,
-        tipoCaja,
-        tipoLamina,
-        flauta,
-        ect,
-        colorPapel,
-        tintas,
-        acabado,
-        tiempoEntrega,
-        largoInt,
-        anchoInt,
-        altoInt,
-        esTroquelada,
-        largoLamDir,
-        anchoLamDir,
-        solapaExtra,
-        cantidad: String(cantidad),
-        precioLaminaM2: String(precioLaminaM2),
-        utilidad,
-        grabadosCosto,
-        grabadosCobrar,
-        costoManoObra,
-        mermaPorc,
-        estado: "Borrador",
-        esMaquila,
-        maquilaProcesos: esMaquila ? maquilaProcesos : {},
-        largoLam: calc ? calc.largoLam : null,
-        anchoLam: calc ? calc.anchoLam : null,
-        areaM2pieza: calc ? calc.areaM2pieza : null,
-        m2total: calc ? calc.m2total : null,
-        precioSugPieza: resultado.precioSugPieza,
-        precioSugTotal: resultado.precioSugTotal,
-        subtotalTotal: calc ? calc.subtotalTotal : resultado.precioSugTotal,
-        utilBruta: calc ? calc.utilBruta : null,
-        utilNeta: calc ? calc.utilNeta : null,
-        cantidadesComp,
-        historialCambios: []
+        folio: f.folio || czNextFolio(lista),
+        fecha: new Date().toISOString().slice(0, 10)
       };
-      await save([nueva, ...cotizaciones]);
-      resetForm();
-      setView("list");
-      setBanner({
-        tipo: "saved",
-        cot: nueva
-      });
+      save([obj, ...lista]);
     }
+    setView("list");
+    setEditId(null);
   };
-  const cambiarEstado = async (id, estado) => {
-    const lista = cotizaciones.map(c => c.id === id ? {
-      ...c,
-      estado
-    } : c);
-    await save(lista);
-    if (selected?.id === id) setSelected({
-      ...selected,
-      estado
-    });
-  };
-  const guardarEnCatalogo = async cot => {
-    try {
-      const existente = claveCatalogo(cot);
-      if (existente) {
-        setBanner({ tipo: "catalog", clave: existente, existe: true });
-        return;
-      }
-      const nuevo = {
-        id: Date.now(),
-        claveFIPSA: genClave("FPROD", catalogoProductos, "claveFIPSA"),
-        claveCliente: "",
-        descripcion: cot.descripcion || `${cot.tipoCaja || ""} ${cot.ect || ""}`.trim(),
-        clienteId: cot.clienteId,
-        cotizacionOrigen: cot.folio,
-        tipoCaja: cot.tipoCaja || "",
-        tipoLamina: cot.tipoLamina || "",
-        flauta: cot.flauta || "",
-        ect: cot.ect || "",
-        colorPapel: cot.colorPapel || "",
-        tintas: cot.tintas || "",
-        acabado: cot.acabado || "",
-        largoInt: cot.largoInt || "",
-        anchoInt: cot.anchoInt || "",
-        altoInt: cot.altoInt || "",
-        largoLam: cot.largoLam || "",
-        anchoLam: cot.anchoLam || "",
-        precioRef: cot.precioSugPieza || "",
-        notas: "",
-        activo: true,
-        fechaAlta: today()
-      };
-      await saveProd([nuevo, ...catalogoProductos]);
-      setBanner({
-        tipo: "catalog",
-        clave: nuevo.claveFIPSA,
-        existe: false
-      });
-    } catch (e) {
-      console.error("Error guardando en catálogo:", e);
-    }
-  };
-  const verDetalle = c => {
-    setBanner(null);
-    setShowCotFormal(false);
-    setSelected(c);
-    setView("detail");
-  };
-  useEffect(() => {
-    if (foco && foco.modulo === "cotizaciones" && Array.isArray(cotizaciones)) {
-      const r = cotizaciones.find(x => String(x.id) === String(foco.id));
-      if (r) { setSelected(r); setView("detail"); }
-      if (typeof setFoco === "function") setFoco(null);
-    }
-  }, [foco]);
-
-  // Helper seguro para números
-  const safeNum = v => parseFloat(v) || 0;
-  const safeFmt = v => fmt(safeNum(v));
-  const safeInt = v => parseInt(v) || 0;
-  const filtered = cotizaciones.filter(c => {
-    const q = search.toLowerCase();
-    const mF = filtro === "Todos" || c.estado === filtro;
-    const cli = clientes.find(cl => cl.id === c.clienteId);
-    return mF && (!q || (c.folio || "").toLowerCase().includes(q) || (cli?.empresa || "").toLowerCase().includes(q) || (c.descripcion || "").toLowerCase().includes(q)) && (filterEstado === "Todos" || c.estado === filterEstado);
-  });
-  const claveCatalogo = cot => {
-    if (!cot) return null;
-    const sig = prodSig(cot);
-    const p = catalogoProductos.find(x => (cot.folio && x.cotizacionOrigen === cot.folio) || prodSig(x) === sig);
-    return p ? p.claveFIPSA : null;
-  };
-  const yaEnCatalogo = cot => !!claveCatalogo(cot);
-  const deleteCot = async c => {
-    if (!window.confirm(`¿Eliminar cotización ${c.folio}? Esta acción no se puede deshacer.`)) return;
-    await save(cotizaciones.filter(x => x.id !== c.id));
+  const inicial = editId ? lista.find(c => c.id === editId) || CZ_BLANK : {
+    ...CZ_BLANK,
+    folio: czNextFolio(lista)
   };
   return /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: 20
-    }
-  }, banner && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: "fixed",
-      top: 16,
-      right: 16,
-      zIndex: 300,
-      maxWidth: 380
-    }
-  }, banner.tipo === "saved" && banner.cot && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#1a1a2e",
-      borderRadius: 12,
-      padding: 18,
-      boxShadow: "0 8px 32px rgba(0,0,0,0.4)"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#16a34a",
-      fontWeight: 700
-    }
-  }, "\u2705 ", banner.cot.folio, " guardada"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setBanner(null),
-    style: {
-      background: "none",
-      border: "none",
-      color: "#666",
-      cursor: "pointer",
-      fontSize: 18,
-      lineHeight: 1,
-      marginLeft: 8
-    }
-  }, "\xD7")), !yaEnCatalogo(banner.cot) ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#aaa",
-      fontSize: 13,
-      marginBottom: 12
-    }
-  }, "\xBFRegistrar este producto en el cat\xE1logo?"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => guardarEnCatalogo(banner.cot),
-    style: {
-      ...S.btn("#e8a317", "#1a1a2e"),
-      flex: 1
-    }
-  }, "\uD83D\uDCE6 S\xED, al cat\xE1logo"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setBanner(null),
-    style: S.btn("#2d2d4e", "#aaa")
-  }, "No por ahora"))) : /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#4ade80",
-      fontSize: 13
-    }
-  }, "\u2705 Ya est\xE1 en el cat\xE1logo")), banner.tipo === "catalog" && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#f0fdf4",
-      border: "2px solid #bbf7d0",
-      borderRadius: 12,
-      padding: 16,
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      boxShadow: "0 4px 16px rgba(0,0,0,0.15)"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#16a34a",
-      fontWeight: 700
-    }
-  }, banner.existe ? "\u2705 Este producto ya estaba en el cat\xE1logo \xB7 " + (banner.clave || "") : "\uD83D\uDCE6 Producto agregado al cat\xE1logo \xB7 " + (banner.clave || "")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setBanner(null),
-    style: {
-      background: "none",
-      border: "none",
-      color: "#16a34a",
-      cursor: "pointer",
-      fontSize: 18
-    }
-  }, "\xD7"))), view === "list" && /*#__PURE__*/React.createElement(React.Fragment, null, seguimientosPend.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: { background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "12px 16px", marginBottom: 14 }
-  }, /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, color: "#1e40af", marginBottom: 8, fontSize: 14 } }, "\uD83D\uDCE7 Seguimiento a cotizaciones (" + seguimientosPend.length + ")"), seguimientosPend.map(item => /*#__PURE__*/React.createElement("div", {
-    key: item.cot.id,
-    style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, padding: "6px 0", borderBottom: "1px solid #dbeafe" }
-  }, /*#__PURE__*/React.createElement("div", { style: { fontSize: 13 } }, /*#__PURE__*/React.createElement("b", null, item.cot.folio || "\u2014"), " \xB7 ", (clientes.find(x => String(x.id) === String(item.cot.clienteId)) || {}).empresa || "", /*#__PURE__*/React.createElement("span", { style: { color: "#1e40af", marginLeft: 6, fontSize: 12 } }, "seguimiento d\u00eda " + item.hito + " \xB7 lleva " + item.dias + " d\u00edas")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => correoSeguimiento(item),
-    style: { background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, padding: "5px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", flexShrink: 0 }
-  }, "\uD83D\uDCE7 Enviar correo")))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 20
-    }
-  }, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      margin: 0,
-      color: "#1a1a2e",
-      fontSize: 20,
-      fontWeight: 800
-    }
-  }, "\uD83D\uDCC4 Cotizaciones"), canCreate && /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setBanner(null);
-      setView("form");
-    },
-    style: {
-      background: "#e8a317",
-      color: "#1a1a2e",
-      border: "none",
-      borderRadius: 8,
-      padding: "9px 20px",
-      fontWeight: 800,
-      fontSize: 14,
-      cursor: "pointer"
-    }
-  }, "+ Nueva Cotizaci\xF3n")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 10,
-      marginBottom: 8,
-      flexWrap: "wrap",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 6,
-      flexWrap: "wrap"
-    }
-  }, ["Todos", ...COT_ESTADOS].map(f => /*#__PURE__*/React.createElement("button", {
-    key: f,
-    onClick: () => setFiltro(f),
-    style: {
-      padding: "7px 14px",
-      borderRadius: 20,
-      border: `2px solid ${filtro === f ? COT_COLOR[f]?.[0] || "#e8a317" : "#e0e0e0"}`,
-      background: filtro === f ? COT_COLOR[f]?.[1] || "#f0efe8" : "#fff",
-      color: filtro === f ? COT_COLOR[f]?.[0] || "#1a1a2e" : "#888",
-      fontWeight: filtro === f ? 700 : 400,
-      fontSize: 12,
-      cursor: "pointer"
-    }
-  }, f)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 10,
-      marginBottom: 14,
-      flexWrap: "wrap"
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    value: search,
-    onChange: e => setSearch(e.target.value),
-    placeholder: "\uD83D\uDD0D  Buscar por folio, cliente o descripci\xF3n...",
-    style: {
-      flex: 1,
-      minWidth: 180,
-      padding: "10px 14px",
-      borderRadius: 8,
-      border: "1px solid #ddd",
-      background: "#fff",
-      fontSize: 14,
-      outline: "none"
-    }
-  }), /*#__PURE__*/React.createElement("select", {
-    value: filterEstado,
-    onChange: e => setFilterEstado(e.target.value),
-    style: {
-      padding: "10px 14px",
-      borderRadius: 8,
-      border: "1px solid #ddd",
-      background: "#fff",
-      fontSize: 14
-    }
-  }, /*#__PURE__*/React.createElement("option", null, "Todos"), COT_ESTADOS.map(e => /*#__PURE__*/React.createElement("option", {
-    key: e
-  }, e))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      border: "1px solid #e0e0e0",
-      borderRadius: 8,
-      overflow: "hidden",
-      flexShrink: 0
-    }
-  }, [{
-    v: "tabla",
-    l: "⊞ Tabla"
-  }, {
-    v: "lista",
-    l: "☰ Lista"
-  }].map(m => /*#__PURE__*/React.createElement("button", {
-    key: m.v,
-    onClick: () => setViewMode(m.v),
-    style: {
-      padding: "9px 14px",
-      border: "none",
-      background: viewMode === m.v ? "#1a1a2e" : "#fff",
-      color: viewMode === m.v ? "#e8a317" : "#888",
-      fontWeight: viewMode === m.v ? 700 : 400,
-      fontSize: 13,
-      cursor: "pointer"
-    }
-  }, m.l)))), viewMode === "tabla" && /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.card,
-      overflow: "auto"
-    }
-  }, /*#__PURE__*/React.createElement("table", {
-    style: {
-      width: "100%",
-      borderCollapse: "collapse",
-      fontSize: 12,
-      minWidth: 800
-    }
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-    style: {
-      background: "#1a1a2e"
-    }
-  }, ["Folio", "Fecha", "Cliente", "Descripción", "Lámina", "Cantidad", "Precio/pza", "Total", "Estado", ""].map(h => /*#__PURE__*/React.createElement("th", {
-    key: h,
-    style: {
-      padding: "10px 12px",
-      color: "#e8a317",
-      textAlign: "left",
-      fontWeight: 700,
-      fontSize: 11,
-      textTransform: "uppercase",
-      letterSpacing: 0.5,
-      whiteSpace: "nowrap"
-    }
-  }, h)))), /*#__PURE__*/React.createElement("tbody", null, filtered.length === 0 && /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
-    colSpan: 10,
-    style: {
-      padding: 24,
-      textAlign: "center",
-      color: "#aaa"
-    }
-  }, "Sin cotizaciones")), filtered.map((c, i) => {
-    const cli = clientes.find(cl => cl.id === c.clienteId);
-    const [ec, ebg] = COT_COLOR[c.estado] || ["#888", "#f3f4f6"];
-    return /*#__PURE__*/React.createElement("tr", {
-      key: c.id,
-      style: {
-        background: i % 2 === 0 ? "#fff" : "#fafaf8",
-        borderBottom: "1px solid #f0efe8",
-        cursor: "pointer"
-      },
-      onClick: () => {
-        setSelected(c);
-        setView("detail");
-      }
-    }, /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        fontFamily: "monospace",
-        fontWeight: 700,
-        color: "#7c3aed"
-      }
-    }, c.folio), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        color: "#555",
-        whiteSpace: "nowrap"
-      }
-    }, displayDate(c.fecha)), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        fontWeight: 600
-      }
-    }, cli?.empresa || "—"), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        maxWidth: 160,
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap"
-      }
-    }, c.descripcion || c.tipoCaja || "—"), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        color: "#555",
-        fontSize: 11
-      }
-    }, c.tipoLamina || "", " ", c.flauta || "", " ", c.ect || ""), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        color: "#555"
-      }
-    }, c.cantidad ? parseInt(c.cantidad).toLocaleString() + " pzas" : "—"), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        fontWeight: 700,
-        color: "#e8a317"
-      }
-    }, c.precioSugPieza ? "$" + fmtN(c.precioSugPieza) : "—"), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px",
-        fontWeight: 700,
-        color: "#1a1a2e"
-      }
-    }, c.precioSugTotal ? fmt(c.precioSugTotal) : "—"), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 12px"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        background: ebg,
-        color: ec,
-        borderRadius: 20,
-        padding: "2px 10px",
-        fontSize: 11,
-        fontWeight: 700
-      }
-    }, c.estado)), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "9px 6px",
-        whiteSpace: "nowrap",
-        display: "flex",
-        gap: 4,
-        flexWrap: "wrap"
-      }
-    }, c.estado === "Borrador" && /*#__PURE__*/React.createElement("button", {
-      onClick: e => {
-        e.stopPropagation();
-        cambiarEstado(c.id, "Enviada");
-      },
-      style: {
-        ...S.btn("#dbeafe", "#2563eb"),
-        fontSize: 11
-      }
-    }, "Enviar"), c.estado === "Enviada" && /*#__PURE__*/React.createElement("button", {
-      onClick: e => {
-        e.stopPropagation();
-        cambiarEstado(c.id, "Aceptada");
-      },
-      style: {
-        ...S.btn("#dcfce7", "#16a34a"),
-        fontSize: 11
-      }
-    }, "Aceptar"), c.estado === "Enviada" && /*#__PURE__*/React.createElement("button", {
-      onClick: e => {
-        e.stopPropagation();
-        cambiarEstado(c.id, "Rechazada");
-      },
-      style: {
-        ...S.btn("#fee2e2", "#dc2626"),
-        fontSize: 11
-      }
-    }, "Rechazar"), /*#__PURE__*/React.createElement("button", {
-      onClick: e => {
-        e.stopPropagation();
-        openEdit(c);
-      },
-      style: {
-        ...S.btn("#f5f3ff", "#7c3aed"),
-        fontSize: 11
-      }
-    }, "\u270F\uFE0F"), /*#__PURE__*/React.createElement("button", {
-      onClick: e => {
-        e.stopPropagation();
-        setSelected(c);
-        setView("detail");
-      },
-      style: {
-        ...S.btn("#f0efe8", "#555"),
-        fontSize: 11
-      }
-    }, "Ver \u2192"), canDelete && /*#__PURE__*/React.createElement("button", {
-      onClick: e => { e.stopPropagation(); deleteCot(c); },
-      style: { background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "5px 10px", fontSize: 11, cursor: "pointer", marginLeft: 4 },
-      title: "Eliminar cotización"
-    }, "\uD83D\uDDD1\uFE0F")));
-  })))), viewMode === "lista" && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 10
-    }
-  }, filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.card,
-      padding: 48,
-      textAlign: "center",
-      color: "#aaa"
-    }
-  }, "Sin cotizaciones") : filtered.map(c => {
-    const [ec, ebg] = COT_COLOR[c.estado] || ["#888", "#f3f4f6"];
-    const cli = clientes.find(cl => cl.id === c.clienteId);
-    return /*#__PURE__*/React.createElement("div", {
-      key: c.id,
-      style: {
-        ...S.card,
-        padding: "14px 18px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 12
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 8,
-        alignItems: "center",
-        flexWrap: "wrap"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "monospace",
-        fontWeight: 800,
-        fontSize: 14,
-        color: "#1a1a2e"
-      }
-    }, c.folio), /*#__PURE__*/React.createElement("span", {
-      style: {
-        background: ebg,
-        color: ec,
-        borderRadius: 20,
-        padding: "2px 10px",
-        fontSize: 12,
-        fontWeight: 700
-      }
-    }, c.estado)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 600,
-        fontSize: 14,
-        color: "#333",
-        marginTop: 3
-      }
-    }, cli?.empresa || "—"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#888",
-        marginTop: 2
-      }
-    }, c.descripcion || `${c.tipoCaja || ""} · ${c.ect || ""}`, " \xB7 ", c.fecha)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 900,
-        fontSize: 18,
-        color: "#1a1a2e"
-      }
-    }, safeFmt(c.precioSugTotal)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 6,
-        marginTop: 6,
-        justifyContent: "flex-end",
-        flexWrap: "wrap"
-      }
-    }, c.estado === "Borrador" && /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(c.id, "Enviada"),
-      style: S.btn("#eff6ff", "#2563eb")
-    }, "\u2709\uFE0F Enviar"), c.estado === "Enviada" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(c.id, "Aceptada"),
-      style: S.btn("#f0fdf4", "#16a34a")
-    }, "\u2705 Aceptada"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(c.id, "Rechazada"),
-      style: S.btn("#fef2f2", "#dc2626")
-    }, "\u274C Rechazada")), c.estado === "Aceptada" && !yaEnCatalogo(c) && /*#__PURE__*/React.createElement("button", {
-      onClick: () => guardarEnCatalogo(c),
-      style: S.btn("#e8a31720", "#b87d10")
-    }, "\uD83D\uDCE6 Al cat\xE1logo"), canEdit && /*#__PURE__*/React.createElement("button", {
-      onClick: () => openEdit(c),
-      style: S.btn("#f5f3ff", "#7c3aed")
-    }, "\u270F\uFE0F Editar"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => verDetalle(c),
-      style: S.btn("#e8a317", "#1a1a2e")
-    }, "Ver \u2192"), canDelete && /*#__PURE__*/React.createElement("button", {
-      onClick: () => deleteCot(c),
-      style: { background: "#fee2e2", color: "#dc2626", border: "1px solid #fca5a5", borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" },
-      title: "Eliminar cotización"
-    }, "\uD83D\uDDD1\uFE0F Eliminar"))));
-  }))), view === "detail" && selected && (() => {
-    const cl = clientes.find(c => String(c.id) === String(selected.clienteId));
-    const [ec, ebg] = COT_COLOR[selected.estado] || ["#888", "#f3f4f6"];
-    const enCat = yaEnCatalogo(selected);
-    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        marginBottom: 20,
-        flexWrap: "wrap"
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        setSelected(null);
-        setView("list");
-        setShowCotFormal(false);
-      },
-      style: S.btn("#f0efe8", "#555")
-    }, "\u2190 Volver"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: "monospace",
-        fontWeight: 800,
-        fontSize: 18,
-        color: "#1a1a2e"
-      }
-    }, selected.folio || "—"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        background: ebg,
-        color: ec,
-        borderRadius: 20,
-        padding: "3px 14px",
-        fontSize: 13,
-        fontWeight: 700
-      }
-    }, selected.estado || "—"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginLeft: "auto",
-        display: "flex",
-        gap: 8,
-        flexWrap: "wrap"
-      }
-    }, canEdit && /*#__PURE__*/React.createElement("button", {
-      onClick: () => openEdit(selected),
-      style: {
-        background: "#7c3aed",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\u270F\uFE0F Editar cotizaci\xF3n"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => duplicarCot(selected),
-      style: {
-        background: "#0891b2",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\uD83D\uDCCB Duplicar como nueva"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowCotFormal(true),
-      style: {
-        background: "#1a1a2e",
-        color: "#e8a317",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\uD83D\uDCC4 Ver documento"), selected.estado === "Borrador" && /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        cambiarEstado(selected.id, "Enviada");
-      },
-      style: {
-        background: "#2563eb",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\u2709\uFE0F Marcar como Enviada"), selected.estado === "Enviada" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(selected.id, "Aceptada"),
-      style: {
-        background: "#16a34a",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\u2705 Aceptada por cliente"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(selected.id, "Rechazada"),
-      style: S.btn("#fef2f2", "#dc2626")
-    }, "\u274C Rechazada")), !enCat && /*#__PURE__*/React.createElement("button", {
-      onClick: () => guardarEnCatalogo(selected),
-      style: {
-        background: "#e8a317",
-        color: "#1a1a2e",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\uD83D\uDCE6 Agregar al cat\xE1logo"))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...S.card,
-        padding: "14px 20px",
-        marginBottom: 16
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 0
-      }
-    }, ["Borrador", "Enviada", "Aceptada"].map((est, i) => {
-      const activo = selected.estado === est;
-      const pasado = ["Enviada", "Aceptada"].indexOf(selected.estado) >= i || selected.estado === "Aceptada" && est !== "Rechazada";
-      const colors = COT_COLOR[est] || ["#888", "#f3f4f6"];
-      const done = est === "Borrador" && ["Enviada", "Aceptada"].includes(selected.estado) || est === "Enviada" && selected.estado === "Aceptada" || est === "Aceptada" && selected.estado === "Aceptada";
-      return /*#__PURE__*/React.createElement("div", {
-        key: est,
-        style: {
-          display: "flex",
-          alignItems: "center",
-          flex: 1
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          flex: 1
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          background: done ? "#16a34a" : activo ? colors[0] : "#e0e0e0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: 900,
-          fontSize: 14,
-          color: done || activo ? "#fff" : "#aaa",
-          marginBottom: 4
-        }
-      }, done ? "✓" : i + 1), /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 11,
-          fontWeight: activo ? 700 : 400,
-          color: activo ? colors[0] : done ? "#16a34a" : "#aaa",
-          whiteSpace: "nowrap"
-        }
-      }, est)), i < 2 && /*#__PURE__*/React.createElement("div", {
-        style: {
-          height: 2,
-          flex: 1,
-          background: done ? "#16a34a" : "#e0e0e0",
-          margin: "0 4px",
-          marginBottom: 16
-        }
-      }));
-    }), selected.estado === "Rechazada" && /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginLeft: 16,
-        background: "#fef2f2",
-        borderRadius: 8,
-        padding: "6px 14px",
-        fontSize: 12,
-        color: "#dc2626",
-        fontWeight: 700
-      }
-    }, "\u274C Rechazada"))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 16
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...S.card,
-        padding: 20
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#aaa",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 12
-      }
-    }, "Datos de la cotizaci\xF3n"), [["Cliente", cl?.empresa || "—"], ["RFC", cl?.rfc || "—"], ["Fecha", selected.fecha || "—"], ["Vigencia", selected.vigencia || "—"], ["Tipo de Caja", selected.tipoCaja || "—"], ["Lámina", `${selected.tipoLamina || "—"} · ${selected.flauta || "—"}`], ["ECT", selected.ect || "—"], ["Color Papel", selected.colorPapel || "—"], ["Impresión", selected.tintas || "—"], ["Acabado", selected.acabado || "—"], ["Medidas int.", `${selected.largoInt || "?"} × ${selected.anchoInt || "?"} × ${selected.altoInt || "?"} cm`], ["Lámina prod.", `${selected.anchoLam || "?"} × ${selected.largoLam || "?"} cm`], ["Cantidad", `${Number(selected.cantidad || 0).toLocaleString("es-MX")} pzas`], ["Tiempo entrega", selected.tiempoEntrega || "—"]].map(([k, v]) => /*#__PURE__*/React.createElement("div", {
-      key: k,
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        padding: "6px 0",
-        borderBottom: "1px solid #f0efe8",
-        fontSize: 13,
-        gap: 8
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "#888",
-        flexShrink: 0
-      }
-    }, k), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontWeight: 600,
-        textAlign: "right"
-      }
-    }, String(v))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: "#1a1a2e",
-        borderRadius: 12,
-        padding: 20,
-        marginBottom: 14
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: "#aaa",
-        fontSize: 11,
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 14
-      }
-    }, "Resumen financiero"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "10px 0",
-        borderBottom: "1px solid #2d2d4e"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 13,
-        color: "#e8a317",
-        fontWeight: 700
-      }
-    }, "\uD83D\uDCB0 Total Venta"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 24,
-        fontWeight: 900,
-        color: "#e8a317"
-      }
-    }, fmt(parseFloat(selected.precioSugTotal) || 0))), (!selected.grabadosCobrar && parseFloat(selected.grabadosCosto) > 0) && /*#__PURE__*/React.createElement("div", { style: { display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #2d2d4e" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, color: "#fbbf24" } }, "+ Grabado/suaje (por separado)"), /*#__PURE__*/React.createElement("span", { style: { fontSize: 14, fontWeight: 600, color: "#fbbf24" } }, fmt(parseFloat(selected.grabadosCosto) || 0))), (!selected.grabadosCobrar && parseFloat(selected.grabadosCosto) > 0) && /*#__PURE__*/React.createElement("div", { style: { display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #2d2d4e" } }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, color: "#e8a317", fontWeight: 700 } }, "Total con grabado/suaje"), /*#__PURE__*/React.createElement("span", { style: { fontSize: 16, fontWeight: 800, color: "#e8a317" } }, fmt((parseFloat(selected.precioSugTotal) || 0) + (parseFloat(selected.grabadosCosto) || 0)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "8px 0",
-        borderBottom: "1px solid #2d2d4e"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 13,
-        color: "#aaa"
-      }
-    }, "Precio por pieza"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 14,
-        fontWeight: 600,
-        color: "#fff"
-      }
-    }, "$", fmtN(parseFloat(selected.precioSugPieza) || 0))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "8px 0",
-        borderBottom: "1px solid #2d2d4e"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 13,
-        color: "#aaa"
-      }
-    }, "Utilidad bruta"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 14,
-        fontWeight: 600,
-        color: "#fff"
-      }
-    }, fmt(parseFloat(selected.utilBruta) || 0))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "8px 0"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 13,
-        color: "#aaa"
-      }
-    }, "Utilidad neta"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 14,
-        fontWeight: 600,
-        color: "#4ade80"
-      }
-    }, fmt(parseFloat(selected.utilNeta) || 0)))), selected.cantidadesComp && selected.cantidadesComp.length > 0 && /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...S.card,
-        padding: 18,
-        marginBottom: 14
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#aaa",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 12
-      }
-    }, "\uD83D\uDCCA Precios por volumen"), /*#__PURE__*/React.createElement("table", {
-      style: {
-        width: "100%",
-        borderCollapse: "collapse",
-        fontSize: 13
-      }
-    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-      style: {
-        background: "#0369a1"
-      }
-    }, ["Cantidad", "Precio/pieza", "Total"].map(h => /*#__PURE__*/React.createElement("th", {
-      key: h,
-      style: {
-        padding: "7px 12px",
-        color: "#fff",
-        textAlign: "left",
-        fontWeight: 700
-      }
-    }, h)))), /*#__PURE__*/React.createElement("tbody", null, /*#__PURE__*/React.createElement("tr", {
-      style: {
-        background: "#e0f2fe"
-      }
-    }, /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "7px 12px",
-        fontWeight: 800,
-        color: "#0369a1"
-      }
-    }, parseInt(selected.cantidad || 0).toLocaleString(), " pzas ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 10
-      }
-    }, "(base)")), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "7px 12px",
-        fontWeight: 700
-      }
-    }, "$", fmtN(selected.precioSugPieza)), /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "7px 12px",
-        fontWeight: 700
-      }
-    }, fmt(selected.precioSugTotal))), selected.cantidadesComp.map((q, i) => {
-      const row = typeof q === "object" ? q : {
-        cantidad: q,
-        costoManoObra: selected.costoManoObra,
-        utilidad: selected.utilidad
-      };
-      const r = calcLamina({
-        largoInt: selected.largoInt,
-        anchoInt: selected.anchoInt,
-        altoInt: selected.altoInt,
-        tipoLamina: selected.tipoLamina,
-        solapaExtra: selected.solapaExtra,
-        esTroquelada: selected.esTroquelada,
-        largoLamDir: selected.largoLamDir,
-        anchoLamDir: selected.anchoLamDir,
-        tintas: selected.tintas,
-        acabado: selected.acabado,
-        cantidad: row.cantidad,
-        precioLaminaM2: selected.precioLaminaM2,
-        utilidad: row.utilidad ?? selected.utilidad,
-        grabadosCosto: selected.grabadosCosto,
-        grabadosCobrar: selected.grabadosCobrar,
-        costoManoObra: row.costoManoObra ?? selected.costoManoObra,
-        mermaPorc: selected.mermaPorc
-      });
-      if (!r) return null;
-      const diff = round2((r.precioSugPieza - selected.precioSugPieza) / selected.precioSugPieza * 100);
-      return /*#__PURE__*/React.createElement("tr", {
-        key: i,
-        style: {
-          background: i % 2 === 0 ? "#fff" : "#f0f9ff",
-          borderTop: "1px solid #bae6fd"
-        }
-      }, /*#__PURE__*/React.createElement("td", {
-        style: {
-          padding: "7px 12px",
-          fontWeight: 700,
-          color: "#0369a1"
-        }
-      }, parseInt(row.cantidad || 0).toLocaleString("es-MX"), " pzas"), /*#__PURE__*/React.createElement("td", {
-        style: {
-          padding: "7px 12px",
-          fontWeight: 700
-        }
-      }, "$", fmtN(r.precioSugPieza), " ", /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 11,
-          color: diff < 0 ? "#16a34a" : "#dc2626"
-        }
-      }, diff < 0 ? diff + "% ↓" : diff > 0 ? "+" + diff + "% ↑" : "")), /*#__PURE__*/React.createElement("td", {
-        style: {
-          padding: "7px 12px",
-          fontWeight: 700
-        }
-      }, fmt(r.precioSugTotal)));
-    })))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...S.card,
-        padding: 18,
-        marginBottom: 14
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#aaa",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 12
-      }
-    }, "Acciones"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: 8
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowCotFormal(true),
-      style: {
-        ...S.btn("#1a1a2e", "#e8a317"),
-        padding: "11px 0",
-        width: "100%",
-        textAlign: "center"
-      }
-    }, "\uD83D\uDCC4 Ver / Imprimir documento para cliente"), selected.estado === "Borrador" && /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(selected.id, "Enviada"),
-      style: {
-        background: "#2563eb",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "11px 0",
-        fontWeight: 800,
-        fontSize: 14,
-        cursor: "pointer",
-        width: "100%"
-      }
-    }, "\u2709\uFE0F Marcar como Enviada al cliente"), selected.estado === "Enviada" && /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 8
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(selected.id, "Aceptada"),
-      style: {
-        flex: 1,
-        background: "#16a34a",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "11px 0",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\u2705 Cliente acept\xF3"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(selected.id, "Rechazada"),
-      style: {
-        flex: 1,
-        background: "#dc2626",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "11px 0",
-        fontWeight: 800,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, "\u274C Cliente rechaz\xF3")), selected.estado === "Rechazada" && /*#__PURE__*/React.createElement("button", {
-      onClick: () => cambiarEstado(selected.id, "Borrador"),
-      style: S.btn("#f0efe8", "#555")
-    }, "\u21A9\uFE0F Regresar a Borrador para editar"), !enCat && /*#__PURE__*/React.createElement("button", {
-      onClick: () => guardarEnCatalogo(selected),
-      style: {
-        background: "#e8a317",
-        color: "#1a1a2e",
-        border: "none",
-        borderRadius: 8,
-        padding: "11px 0",
-        fontWeight: 800,
-        fontSize: 14,
-        cursor: "pointer",
-        width: "100%"
-      }
-    }, "\uD83D\uDCE6 Guardar producto en cat\xE1logo"), selected.estado === "Aceptada" && canVer("pedidos") && /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        setPrefillPedido(selected);
-        setModulo("pedidos");
-      },
-      style: {
-        background: "#16a34a",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "11px 0",
-        fontWeight: 800,
-        fontSize: 15,
-        cursor: "pointer",
-        width: "100%"
-      }
-    }, "\uD83D\uDCE6 Generar Pedido desde esta cotizaci\xF3n \u2192"), enCat && /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: "#f0fdf4",
-        borderRadius: 8,
-        padding: "10px 14px",
-        color: "#16a34a",
-        fontWeight: 700,
-        fontSize: 13,
-        textAlign: "center"
-      }
-    }, "\u2705 Producto ya est\xE1 en el cat\xE1logo \xB7 " + (claveCatalogo(selected) || "")))), selected.descripcion && /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...S.card,
-        padding: 16,
-        marginBottom: 14
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#aaa",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 6
-      }
-    }, "Descripci\xF3n / Notas"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 13,
-        color: "#333"
-      }
-    }, selected.descripcion)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...S.card,
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: "#2d2d4e",
-        padding: "10px 16px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "#e8a317",
-        fontWeight: 700,
-        fontSize: 13
-      }
-    }, "\uD83D\uDCCB Historial de cambios"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: "#666",
-        fontSize: 12
-      }
-    }, (selected.historialCambios || []).length, " cambio(s)")), (selected.historialCambios || []).length === 0 && /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "16px 18px",
-        fontSize: 13,
-        color: "#aaa",
-        textAlign: "center"
-      }
-    }, "Sin cambios registrados \u2014 al editar y guardar aparecer\xE1n aqu\xED"), [...(selected.historialCambios || [])].map((c, i) => /*#__PURE__*/React.createElement("div", {
-      key: i,
-      style: {
-        padding: "10px 16px",
-        borderBottom: "1px solid #f0efe8",
-        background: i === 0 ? "#fafaf8" : "#fff"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        gap: 8
-      }
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 700,
-        fontSize: 12,
-        color: i === 0 ? "#2563eb" : "#555"
-      }
-    }, i === 0 ? "🔵 Último cambio" : "○ Cambio anterior"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 600,
-        fontSize: 13,
-        color: "#1a1a2e",
-        marginTop: 2
-      }
-    }, c.nota), c.campos && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#888",
-        marginTop: 4,
-        display: "flex",
-        flexWrap: "wrap",
-        gap: 4
-      }
-    }, Object.entries(c.campos).filter(([k, v]) => v).map(([k, v]) => /*#__PURE__*/React.createElement("span", {
-      key: k,
-      style: {
-        background: "#eff6ff",
-        color: "#2563eb",
-        borderRadius: 4,
-        padding: "2px 6px"
-      }
-    }, k, ": ", /*#__PURE__*/React.createElement("strong", null, String(v)))))), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 11,
-        color: "#aaa",
-        flexShrink: 0
-      }
-    }, displayDate(c.fecha)))))))), showCotFormal && /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.65)",
-        zIndex: 300,
-        overflowY: "auto",
-        padding: 24
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        maxWidth: 760,
-        margin: "0 auto"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 10,
-        marginBottom: 16,
-        justifyContent: "flex-end",
-        flexWrap: "wrap"
-      }
-    }, selected.estado === "Borrador" && /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        cambiarEstado(selected.id, "Enviada");
-      },
-      style: {
-        background: "#2563eb",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        cursor: "pointer"
-      }
-    }, "\u2709\uFE0F Marcar como Enviada"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        if (selected.estado === "Borrador") cambiarEstado(selected.id, "Enviada");
-        abrirParaImprimir(selected.folio, document.getElementById("cot-print-content").innerHTML);
-      },
-      style: {
-        background: "#555",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        cursor: "pointer"
-      }
-    }, "\uD83D\uDDA8\uFE0F Imprimir"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        if (selected.estado === "Borrador") cambiarEstado(selected.id, "Enviada");
-        descargarPDFDeElemento("cot-print-content", "Cotizacion-" + (selected.folio || ""));
-      },
-      style: {
-        background: "#e8a317",
-        color: "#1a1a2e",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
-        fontWeight: 800,
-        cursor: "pointer"
-      }
-    }, "\uD83D\uDCC4 Descargar PDF"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowCotFormal(false),
-      style: {
-        background: "#555",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
-        padding: "9px 14px",
-        fontWeight: 700,
-        cursor: "pointer"
-      }
-    }, "\u2715 Cerrar")), /*#__PURE__*/React.createElement("div", {
-      id: "cot-print-content",
-      style: {
-        background: "#fff",
-        padding: "40px 48px",
-        fontFamily: "Arial,sans-serif",
-        fontSize: 13,
-        color: "#111",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-        borderRadius: 4
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        paddingBottom: 20,
-        borderBottom: "3px solid #1a1a2e",
-        marginBottom: 24
-      }
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        marginBottom: 8
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: 42,
-        height: 42,
-        background: "#1a1a2e",
-        borderRadius: 8,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 900,
-        fontSize: 22,
-        color: "#e8a317"
-      }
-    }, "F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 900,
-        fontSize: 18,
-        color: "#1a1a2e"
-      }
-    }, "FIPSA PLEGADIZOS"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#888"
-      }
-    }, "Soluciones en empaque corrugado"))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#555",
-        lineHeight: 1.8
-      }
-    }, /*#__PURE__*/React.createElement("div", null, "\uD83D\uDCE7 ventas@corrugadosfipsa.com"))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: "right"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#aaa",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        letterSpacing: 1
-      }
-    }, "Cotizaci\xF3n"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 900,
-        fontSize: 26,
-        fontFamily: "monospace",
-        color: "#1a1a2e",
-        marginTop: 4
-      }
-    }, selected.folio), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#555",
-        marginTop: 6
-      }
-    }, "Fecha: ", /*#__PURE__*/React.createElement("strong", null, selected.fecha)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#555"
-      }
-    }, "Vigencia: ", /*#__PURE__*/React.createElement("strong", null, selected.vigencia)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginTop: 8,
-        background: ebg,
-        color: ec,
-        borderRadius: 20,
-        padding: "3px 12px",
-        fontSize: 11,
-        fontWeight: 700,
-        display: "inline-block"
-      }
-    }, selected.estado))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: "#f8f8f8",
-        borderRadius: 8,
-        padding: "14px 18px",
-        marginBottom: 20
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#888",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 6
-      }
-    }, "Cotizaci\xF3n para"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 800,
-        fontSize: 17
-      }
-    }, cl?.empresa || "—"), cl?.rfc && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#555",
-        marginTop: 2
-      }
-    }, "RFC: ", cl.rfc), cl?.ciudad && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#555"
-      }
-    }, cl.ciudad)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginBottom: 20,
-        border: "1px solid #e0e0e0",
-        borderRadius: 8,
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: "#1a1a2e",
-        padding: "8px 16px",
-        color: "#e8a317",
-        fontWeight: 700,
-        fontSize: 12,
-        textTransform: "uppercase"
-      }
-    }, "Especificaciones del Producto"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "14px 16px",
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr",
-        gap: 14
-      }
-    }, (selected.esMaquila ? [["Tipo de servicio", "Maquila (procesos)"], ["Material", "Suministrado por el cliente"], ["Procesos contratados", PROCESOS_MAQUILA.filter(p => selected.maquilaProcesos && selected.maquilaProcesos[p.key] && selected.maquilaProcesos[p.key].activo).map(p => p.label.replace(/^[^ ]+ /, "")).join(", ") || "—"]] : [["Tipo de caja", selected.tipoCaja || "—"], ["Tipo de lámina", selected.tipoLamina || "—"], ["Flauta", selected.flauta || "—"], ["Resistencia ECT", selected.ect || "—"], ["Color del papel", selected.colorPapel || "—"], ["Impresión", selected.tintas || "—"], ["Acabado", selected.acabado || "—"], ["Medidas interiores", `${selected.largoInt || "?"} × ${selected.anchoInt || "?"} × ${selected.altoInt || "?"} cm`], ["Medida de lámina", `${selected.anchoLam || "?"} × ${selected.largoLam || "?"} cm`]]).map(([k, v]) => /*#__PURE__*/React.createElement("div", {
-      key: k
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 9,
-        color: "#888",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 3
-      }
-    }, k), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 600,
-        fontSize: 13
-      }
-    }, v))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginBottom: 20
-      }
-    }, /*#__PURE__*/React.createElement("table", {
-      style: {
-        width: "100%",
-        borderCollapse: "collapse",
-        fontSize: 13
-      }
-    }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-      style: {
-        background: "#1a1a2e"
-      }
-    }, ["Descripción", "Cantidad", "Precio/pieza", "Subtotal", "Total con IVA"].map(h => /*#__PURE__*/React.createElement("th", {
-      key: h,
-      style: {
-        padding: "10px 14px",
-        color: "#e8a317",
-        textAlign: h === "Descripción" ? "left" : "right",
-        fontSize: 12,
-        fontWeight: 700
-      }
-    }, h)))), /*#__PURE__*/React.createElement("tbody", null, (() => {
-      const hasComp = (selected.cantidadesComp?.length || 0) > 0;
-      // Build unified rows: base + additional volumes
-      const baseRow = {
-        cantidad: parseInt(selected.cantidad || 0),
-        precioSugPieza: parseFloat(selected.precioSugPieza) || 0,
-        precioSugTotal: parseFloat(selected.precioSugTotal) || 0,
-        isBase: true
-      };
-      const compRows = (selected.cantidadesComp || []).map(q => {
-        const row = typeof q === "object" ? q : {
-          cantidad: String(q),
-          costoManoObra: selected.costoManoObra || "2.50",
-          utilidad: selected.utilidad || 30
-        };
-        const r = calcLamina({
-          largoInt: selected.largoInt,
-          anchoInt: selected.anchoInt,
-          altoInt: selected.altoInt,
-          tipoLamina: selected.tipoLamina,
-          solapaExtra: selected.solapaExtra,
-          esTroquelada: selected.esTroquelada,
-          largoLamDir: selected.largoLamDir,
-          anchoLamDir: selected.anchoLamDir,
-          tintas: selected.tintas,
-          acabado: selected.acabado,
-          cantidad: row.cantidad,
-          precioLaminaM2: selected.precioLaminaM2,
-          utilidad: row.utilidad ?? selected.utilidad,
-          grabadosCosto: selected.grabadosCosto,
-          grabadosCobrar: selected.grabadosCobrar,
-          costoManoObra: row.costoManoObra ?? selected.costoManoObra,
-          mermaPorc: selected.mermaPorc
-        });
-        if (!r) return null;
-        return {
-          cantidad: parseInt(row.cantidad || 0),
-          precioSugPieza: r.precioSugPieza,
-          precioSugTotal: r.precioSugTotal,
-          isBase: false
-        };
-      }).filter(Boolean);
-      // Merge all and sort descending by quantity (mayor a menor)
-      const allRows = [baseRow, ...compRows].sort((a, b) => a.cantidad - b.cantidad);
-      const basePrecio = parseFloat(selected.precioSugPieza) || 0;
-      return allRows.map((row, i) => {
-        return /*#__PURE__*/React.createElement("tr", {
-          key: i,
-          style: {
-            borderBottom: "1px solid #e0e0e0",
-            background: i % 2 === 0 ? "#fff" : "#fafaf8"
-          }
-        }, i === 0 && /*#__PURE__*/React.createElement("td", {
-          rowSpan: allRows.length,
-          style: {
-            padding: "12px 14px",
-            verticalAlign: "top",
-            borderRight: "1px solid #e0e0e0"
-          }
-        }, /*#__PURE__*/React.createElement("div", {
-          style: {
-            fontWeight: 600
-          }
-        }, selected.descripcion || (selected.esMaquila ? "Servicio de maquila" : `${selected.tipoCaja || ""} ${selected.ect || ""} ${selected.flauta || ""}`)), selected.grabadosCosto && parseFloat(selected.grabadosCosto) > 0 && selected.grabadosCobrar && /*#__PURE__*/React.createElement("div", {
-          style: {
-            fontSize: 11,
-            color: "#888",
-            marginTop: 4
-          }
-        }, "Incluye grabado/suaje"), (!selected.grabadosCobrar && parseFloat(selected.grabadosCosto) > 0) && /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: "#9a3412", marginTop: 4 } }, "+ Grabado/suaje: se cobra por separado")), /*#__PURE__*/React.createElement("td", {
-          style: {
-            padding: "12px 14px",
-            textAlign: "right",
-            fontWeight: 700,
-            color: row.isBase ? "#1a1a2e" : "#0369a1"
-          }
-        }, row.cantidad.toLocaleString("es-MX"), " pzas"), /*#__PURE__*/React.createElement("td", {
-          style: {
-            padding: "12px 14px",
-            textAlign: "right",
-            fontWeight: 600
-          }
-        }, "$", fmtN(row.precioSugPieza)), /*#__PURE__*/React.createElement("td", {
-          style: {
-            padding: "12px 14px",
-            textAlign: "right",
-            fontWeight: 800,
-            color: "#1a1a2e"
-          }
-        }, fmt(row.precioSugTotal)), /*#__PURE__*/React.createElement("td", {
-          style: {
-            padding: "12px 14px",
-            textAlign: "right",
-            fontWeight: 800,
-            color: "#15803d"
-          }
-        }, fmt(row.precioSugTotal * 1.16)));
-      });
-    })()), /*#__PURE__*/React.createElement("tfoot", null, (!selected.grabadosCobrar && parseFloat(selected.grabadosCosto) > 0) && /*#__PURE__*/React.createElement("tr", { style: { background: "#fff7ed" } }, /*#__PURE__*/React.createElement("td", { colSpan: 3, style: { padding: "12px 14px", textAlign: "right", fontWeight: 700, color: "#9a3412" } }, "Grabado / suaje (cargo por separado)"), /*#__PURE__*/React.createElement("td", { style: { padding: "12px 14px", textAlign: "right", fontWeight: 800, color: "#9a3412" } }, fmt(parseFloat(selected.grabadosCosto) || 0)), /*#__PURE__*/React.createElement("td", { style: { padding: "12px 14px", textAlign: "right", fontWeight: 800, color: "#9a3412" } }, fmt((parseFloat(selected.grabadosCosto) || 0) * 1.16))), /*#__PURE__*/React.createElement("tr", {
-      style: {
-        background: "#1a1a2e"
-      }
-    }, /*#__PURE__*/React.createElement("td", {
-      colSpan: 5,
-      style: {
-        padding: "12px 14px",
-        color: "#aaa",
-        fontSize: 11,
-        textAlign: "right"
-      }
-    }, "* Precios en MXN + IVA"))))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 16,
-        marginBottom: 20
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        background: "#f8f8f8",
-        borderRadius: 8,
-        padding: "12px 16px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#888",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 8
-      }
-    }, "Condiciones"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        lineHeight: 2,
-        color: "#333"
-      }
-    }, /*#__PURE__*/React.createElement("div", null, "\u23F1\uFE0F Tiempo de entrega: ", /*#__PURE__*/React.createElement("strong", null, selected.tiempoEntrega || "A convenir")), /*#__PURE__*/React.createElement("div", null, "\uD83D\uDCB3 Condiciones de pago: ", /*#__PURE__*/React.createElement("strong", null, cl?.condiciones || "A convenir")), /*#__PURE__*/React.createElement("div", null, "\uD83D\uDCC5 Vigencia de la cotizaci\xF3n: ", /*#__PURE__*/React.createElement("strong", null, selected.vigencia || "15 días")))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        border: "1px solid #e0e0e0",
-        borderRadius: 8,
-        padding: "12px 16px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#888",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        marginBottom: 8
-      }
-    }, "Notas importantes"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#555",
-        lineHeight: 1.8
-      }
-    }, /*#__PURE__*/React.createElement("div", null, "\u2022 Cantidad final entregada puede variar +/- 10%"), /*#__PURE__*/React.createElement("div", null, "\u2022 Sujeto a disponibilidad de materia prima"), /*#__PURE__*/React.createElement("div", null, "\u2022 Precio v\xE1lido por la vigencia indicada")))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        borderTop: "1px solid #e0e0e0",
-        paddingTop: 20,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-end"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#888"
-      }
-    }, /*#__PURE__*/React.createElement("div", null, "Generado por FIPSA Sistema"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "monospace",
-        marginTop: 2
-      }
-    }, selected.folio)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        textAlign: "center"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        borderBottom: "1px solid #333",
-        width: 200,
-        marginBottom: 6
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11,
-        color: "#555"
-      }
-    }, "Autorizaci\xF3n FIPSA Plegadizos")))))));
-  })(), view === "form" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      marginBottom: 20
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      resetForm();
+    className: "cz-cot"
+  }, /*#__PURE__*/React.createElement("style", null, CZ_CSS), view === "form" ? /*#__PURE__*/React.createElement(CZForm, {
+    inicial: inicial,
+    clientes: clientes,
+    modoEdicion: !!editId,
+    puedeGuardar: puedeGuardar,
+    onGuardar: onGuardar,
+    onCancelar: () => {
       setView("list");
-    },
-    style: S.btn("#f0efe8", "#555")
-  }, "\u2190 Cancelar"), /*#__PURE__*/React.createElement("h2", {
-    style: {
-      margin: 0,
-      fontSize: 18,
-      fontWeight: 800,
-      color: "#1a1a2e"
+      setEditId(null);
     }
-  }, editandoId ? "✏️ Editando" : "➕ Nueva", " Cotizaci\xF3n \u2014 ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: "monospace",
-      color: "#e8a317"
-    }
-  }, folio)), editandoId && /*#__PURE__*/React.createElement("span", {
-    style: {
-      background: "#fffbeb",
-      color: "#d97706",
-      borderRadius: 20,
-      padding: "3px 12px",
-      fontSize: 12,
-      fontWeight: 700
-    }
-  }, "Modo edici\xF3n")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 16,
-      alignItems: "start"
-    }
+  }) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "cz-toolbar"
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 14
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.card,
-      padding: 20
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.sec("#e8a317")
-    }
-  }, "\uD83C\uDFE2 Cliente y Folio"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "Cliente *",
-    col: "1/-1"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: clienteId,
-    onChange: e => setClienteId(e.target.value),
-    style: {
-      ...S.select,
-      borderColor: !clienteId ? "#f59e0b" : "#ddd"
-    }
-  }, /*#__PURE__*/React.createElement("option", {
-    value: ""
-  }, "\u2014 Selecciona \u2014"), opcionesCliente(clientes))), /*#__PURE__*/React.createElement(Field, {
-    label: "Folio (editable)"
-  }, /*#__PURE__*/React.createElement("input", {
-    value: folioManual,
-    onChange: e => setFolioManual(e.target.value),
-    placeholder: genFolio("COT", cotizaciones, "folio"),
-    style: S.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Vendedor *"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: vendedorId,
-    onChange: e => setVendedorId(e.target.value),
-    style: { ...S.select, borderColor: !vendedorId ? "#f59e0b" : "#ddd" }
-  }, /*#__PURE__*/React.createElement("option", { value: "" }, "\u2014 Seleccionar vendedor \u2014"), (empleados || []).filter(x => x.esVendedor && x.activo).map(v => /*#__PURE__*/React.createElement("option", { key: v.id, value: v.id }, (v.nombre || "") + " " + (v.apellidos || ""))))), /*#__PURE__*/React.createElement(Field, {
-    label: "Descripci\xF3n del producto"
-  }, /*#__PURE__*/React.createElement("input", {
-    value: descripcion,
-    onChange: e => setDescripcion(e.target.value),
-    placeholder: "Ej: Caja exportaci\xF3n",
-    style: S.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Tipo de caja *"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: tipoCaja,
-    onChange: e => setTipoCaja(e.target.value),
-    style: S.select
-  }, TIPOS_CAJA.map(t => /*#__PURE__*/React.createElement("option", { key: t, value: t }, t)))), /*#__PURE__*/React.createElement(Field, {
-    label: "Tiempo de entrega",
-    col: "1/-1"
-  }, /*#__PURE__*/React.createElement("input", {
-    value: tiempoEntrega,
-    onChange: e => setTiempoEntrega(e.target.value),
-    style: S.input
-  }))), cl && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 10,
-      background: "#fafaf8",
-      borderRadius: 8,
-      padding: "9px 14px",
-      fontSize: 13,
-      color: "#555"
-    }
-  }, "\u2705 ", cl.empresa, " \xB7 ", cl.condiciones), clientes.length === 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 10,
-      background: "#fffbeb",
-      border: "1px solid #fde68a",
-      borderRadius: 8,
-      padding: "9px 14px",
-      fontSize: 13,
-      color: "#92400e"
-    }
-  }, "\u26A0\uFE0F No hay clientes registrados. Ve al m\xF3dulo de Clientes primero.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.card,
-      padding: 20
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      marginBottom: 14
-    }
-  }, [{
-    modo: "regular",
-    l: "📦 Regular"
-  }, {
-    modo: "troquelada",
-    l: "✂️ Troquelada"
-  }, {
-    modo: "maquila",
-    l: "🛠️ Maquila"
-  }].map(t => {
-    const modoActual = esMaquila ? "maquila" : (esTroquelada ? "troquelada" : "regular");
-    return /*#__PURE__*/React.createElement("button", {
-      key: t.modo,
-      onClick: () => {
-        if (t.modo === "maquila") { setEsMaquila(true); setEsTroquelada(false); }
-        else if (t.modo === "troquelada") { setEsMaquila(false); setEsTroquelada(true); }
-        else { setEsMaquila(false); setEsTroquelada(false); }
-      },
-      style: {
-        flex: 1,
-        padding: "9px 0",
-        borderRadius: 8,
-        border: `2px solid ${modoActual === t.modo ? "#e8a317" : "#e0e0e0"}`,
-        background: modoActual === t.modo ? "#1a1a2e" : "#fafaf8",
-        color: modoActual === t.modo ? "#e8a317" : "#888",
-        fontWeight: 700,
-        fontSize: 13,
-        cursor: "pointer"
-      }
-    }, t.l);
-  })), esMaquila && /*#__PURE__*/React.createElement("div", {
-    style: { background: "#fafaf8", borderRadius: 10, padding: 16, marginBottom: 14, border: "1px solid #f0efe8" }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: { fontWeight: 800, fontSize: 13, color: "#1a1a2e", marginBottom: 4 }
-  }, "\uD83D\uDEE0\uFE0F Procesos de maquila"), /*#__PURE__*/React.createElement("div", {
-    style: { fontSize: 12, color: "#888", marginBottom: 12 }
-  }, "El cliente trae el material. Selecciona los procesos y captura el precio por pieza (ya con tu utilidad incluida)."), /*#__PURE__*/React.createElement("div", null, PROCESOS_MAQUILA.map(proc => /*#__PURE__*/React.createElement("div", {
-    key: proc.key,
-    style: { display: "flex", alignItems: "center", gap: 12, padding: "8px 0", borderBottom: "1px solid #f0efe8" }
-  }, /*#__PURE__*/React.createElement("label", {
-    style: { display: "flex", alignItems: "center", gap: 8, flex: 1, cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1a1a2e" }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    checked: !!(maquilaProcesos[proc.key] && maquilaProcesos[proc.key].activo),
-    onChange: e => setMaquilaProcesos(prev => ({ ...prev, [proc.key]: { ...prev[proc.key], activo: e.target.checked } })),
-    style: { width: 16, height: 16, cursor: "pointer" }
-  }), proc.label), /*#__PURE__*/React.createElement("div", {
-    style: { display: "flex", alignItems: "center", gap: 4 }
-  }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 12, color: "#888" } }, "$"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: (maquilaProcesos[proc.key] && maquilaProcesos[proc.key].precio) || "",
-    onChange: e => setMaquilaProcesos(prev => ({ ...prev, [proc.key]: { ...prev[proc.key], precio: e.target.value } })),
-    placeholder: "0.00",
-    disabled: !(maquilaProcesos[proc.key] && maquilaProcesos[proc.key].activo),
-    style: { ...S.input, width: 90, opacity: (maquilaProcesos[proc.key] && maquilaProcesos[proc.key].activo) ? 1 : 0.4 }
-  }), /*#__PURE__*/React.createElement("span", { style: { fontSize: 11, color: "#888" } }, "/pza")))))), !esMaquila && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 10,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "Largo int (cm)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: largoInt,
-    onChange: e => setLargoInt(e.target.value),
-    placeholder: "0",
-    style: S.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Ancho int (cm)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: anchoInt,
-    onChange: e => setAnchoInt(e.target.value),
-    placeholder: "0",
-    style: S.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Alto int (cm)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: altoInt,
-    onChange: e => setAltoInt(e.target.value),
-    placeholder: "0",
-    style: S.input
-  }))), !esTroquelada && calc && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#fafaf8",
-      borderRadius: 8,
-      padding: "8px 12px",
-      fontSize: 13,
-      color: "#555",
-      marginBottom: 10
-    }
-  }, "L\xE1mina: ", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: "#e8a317"
-    }
-  }, calc.anchoLam, "\xD7", calc.largoLam, " cm"), " \xB7 ", calc.areaM2pieza, " m\xB2/pza"), !esTroquelada && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      cursor: "pointer"
-    },
-    onClick: () => setSolapaExtra(s => !s)
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 18,
-      height: 18,
-      borderRadius: 5,
-      background: solapaExtra ? "#e8a317" : "#fff",
-      border: `2px solid ${solapaExtra ? "#e8a317" : "#ccc"}`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center"
-    }
-  }, solapaExtra && /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#fff",
-      fontSize: 11,
-      fontWeight: 800
-    }
-  }, "\u2713")), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: "#555"
-    }
-  }, "+1.5 cm extra a la solapa")), esTroquelada && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 10,
-      marginTop: 10
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "Ancho l\xE1mina (cm)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: anchoLamDir,
-    onChange: e => setAnchoLamDir(e.target.value),
-    style: {
-      ...S.input,
-      borderColor: "#e8a317"
-    }
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Largo l\xE1mina (cm)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: largoLamDir,
-    onChange: e => setLargoLamDir(e.target.value),
-    style: {
-      ...S.input,
-      borderColor: "#e8a317"
-    }
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.card,
-      padding: 20
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.sec("#1a1a2e")
-    }
-  }, "\uD83D\uDCE6 Material e Impresi\xF3n"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 10,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "L\xE1mina"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: tipoLamina,
-    onChange: e => {
-      setTipoLamina(e.target.value);
-      setFlauta(LAMINAS[e.target.value].flautas[0]);
-      setEct(LAMINAS[e.target.value].ects[0]);
-    },
-    style: S.select
-  }, Object.keys(LAMINAS).map(o => /*#__PURE__*/React.createElement("option", {
-    key: o
-  }, o)))), /*#__PURE__*/React.createElement(Field, {
-    label: "Flauta"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: flauta,
-    onChange: e => setFlauta(e.target.value),
-    style: S.select
-  }, LAMINAS[tipoLamina].flautas.map(o => /*#__PURE__*/React.createElement("option", {
-    key: o
-  }, o)))), /*#__PURE__*/React.createElement(Field, {
-    label: "ECT"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: ect,
-    onChange: e => setEct(e.target.value),
-    style: S.select
-  }, LAMINAS[tipoLamina].ects.map(o => /*#__PURE__*/React.createElement("option", {
-    key: o
-  }, o))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 10
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "Impresi\xF3n"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: tintas,
-    onChange: e => setTintas(e.target.value),
-    style: S.select
-  }, TINTAS_OPTS.map(o => /*#__PURE__*/React.createElement("option", {
-    key: o
-  }, o)))), /*#__PURE__*/React.createElement(Field, {
-    label: "Acabado"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: acabado,
-    onChange: e => setAcabado(e.target.value),
-    style: S.select
-  }, ACABADOS.map(o => /*#__PURE__*/React.createElement("option", {
-    key: o
-  }, o))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 10,
-      display: "flex",
-      gap: 8
-    }
-  }, ["Kraft", "Blanco"].map(c => /*#__PURE__*/React.createElement("button", {
-    key: c,
-    onClick: () => setColorPapel(c),
-    style: {
-      flex: 1,
-      padding: "9px 0",
-      borderRadius: 8,
-      border: `2px solid ${colorPapel === c ? "#e8a317" : "#e0e0e0"}`,
-      background: colorPapel === c ? "#1a1a2e" : "#fafaf8",
-      color: colorPapel === c ? "#e8a317" : "#888",
-      fontWeight: 700,
-      fontSize: 13,
-      cursor: "pointer"
-    }
-  }, c === "Kraft" ? "🟫" : "⬜", " ", c))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 14
-    }
-  }, esMaquila && /*#__PURE__*/React.createElement("div", {
-    style: { ...S.card, padding: 20, border: "2px solid #e8a317" }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: { ...S.sec("#1a1a2e") }
-  }, "\uD83D\uDEE0\uFE0F Resumen de Maquila"), /*#__PURE__*/React.createElement(Field, {
-    label: "Cantidad (pzas)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: cantidad,
-    onChange: e => setCantidad(e.target.value),
-    placeholder: "0",
-    style: { ...S.input, marginBottom: 12 }
-  })), calcMaquila ? /*#__PURE__*/React.createElement("div", null, calcMaquila.procesosSel.map(p => /*#__PURE__*/React.createElement("div", {
-    key: p.key,
-    style: { display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f0efe8", fontSize: 13 }
-  }, /*#__PURE__*/React.createElement("span", { style: { color: "#555" } }, p.label), /*#__PURE__*/React.createElement("span", { style: { fontWeight: 700, color: "#1a1a2e" } }, "$", fmtN(p.precioUnit), "/pza"))), /*#__PURE__*/React.createElement("div", {
-    style: { display: "flex", justifyContent: "space-between", padding: "10px 0 4px", marginTop: 4, borderTop: "2px solid #1a1a2e" }
-  }, /*#__PURE__*/React.createElement("span", { style: { fontWeight: 800, color: "#1a1a2e" } }, "Precio por pieza"), /*#__PURE__*/React.createElement("span", { style: { fontWeight: 900, color: "#e8a317", fontSize: 16 } }, "$", fmtN(calcMaquila.precioSugPieza))), /*#__PURE__*/React.createElement("div", {
-    style: { display: "flex", justifyContent: "space-between", padding: "4px 0" }
-  }, /*#__PURE__*/React.createElement("span", { style: { fontWeight: 800, color: "#1a1a2e" } }, "Total (", calcMaquila.cant, " pzas)"), /*#__PURE__*/React.createElement("span", { style: { fontWeight: 900, color: "#16a34a", fontSize: 18 } }, fmt(calcMaquila.precioSugTotal)))) : /*#__PURE__*/React.createElement("div", {
-    style: { color: "#aaa", fontSize: 13, padding: "12px 0" }
-  }, "Selecciona procesos y captura cantidad y precios para ver el total.")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.card,
-      padding: 20,
-      display: esMaquila ? "none" : "block"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      ...S.sec("#1a1a2e")
-    }
-  }, "\uD83D\uDCB2 Costos y Precio"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 12,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: "Precio l\xE1mina ($/m\xB2)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    step: "0.01",
-    value: precioLaminaM2,
-    onChange: e => setPrecioLaminaM2(e.target.value),
-    placeholder: "0.00",
-    style: S.input
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: "Cantidad (pzas)"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    value: cantidad,
-    onChange: e => setCantidad(e.target.value),
-    placeholder: "0",
-    style: S.input
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      gridColumn: "1/-1"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#aaa",
-      fontWeight: 700,
-      textTransform: "uppercase"
-    }
-  }, "\uD83D\uDCCA Cotizaci\xF3n por volumen (opcional)"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setCantidadesComp([...cantidadesComp, {
-      cantidad: "",
-      costoManoObra,
-      utilidad
-    }]),
-    style: {
-      ...S.btn("#f0f9ff", "#0369a1"),
-      fontSize: 12,
-      padding: "5px 12px"
-    }
-  }, "\u2795 Agregar escenario")), cantidadesComp.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      border: "1px solid #e0f2fe",
-      borderRadius: 8,
-      overflow: "hidden"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1.2fr 1fr auto",
-      background: "#0369a1",
-      padding: "7px 12px",
-      gap: 8
-    }
-  }, ["Cantidad (pzas)", "Costo M.O. ($/m²)", "Utilidad (%)", ""].map(h => /*#__PURE__*/React.createElement("div", {
-    key: h,
-    style: {
-      color: "#fff",
-      fontSize: 11,
-      fontWeight: 700,
-      textTransform: "uppercase"
-    }
-  }, h))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1.2fr 1fr auto",
-      padding: "8px 12px",
-      gap: 8,
-      background: "#e0f2fe",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 800,
-      color: "#0369a1",
-      fontSize: 13
-    }
-  }, parseInt(cantidad || 0).toLocaleString(), " ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      fontWeight: 400
-    }
-  }, "base")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 700,
-      fontSize: 13
-    }
-  }, "$", fmtN(parseFloat(costoManoObra) || 0), "/m\xB2"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 700,
-      fontSize: 13
-    }
-  }, utilidad, "%"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 12,
-      color: "#0369a1",
-      fontWeight: 800
-    }
-  }, calc ? `$${fmtN(calc.precioSugPieza)}/pza` : "-")), cantidadesComp.map((row, i) => {
-    const upd = (k, v) => {
-      const arr = [...cantidadesComp];
-      arr[i] = {
-        ...arr[i],
-        [k]: v
-      };
-      setCantidadesComp(arr);
-    };
-    const r = calcLamina({
-      largoInt,
-      anchoInt,
-      altoInt,
-      tipoLamina,
-      solapaExtra,
-      esTroquelada,
-      largoLamDir,
-      anchoLamDir,
-      tintas,
-      acabado,
-      cantidad: row.cantidad,
-      precioLaminaM2,
-      utilidad: row.utilidad,
-      grabadosCosto,
-      grabadosCobrar,
-      costoManoObra: row.costoManoObra,
-      mermaPorc
-    });
-    const diff = calc && r ? round2((r.precioSugPieza - calc.precioSugPieza) / calc.precioSugPieza * 100) : null;
-    return /*#__PURE__*/React.createElement("div", {
-      key: i,
-      style: {
-        borderTop: "1px solid #bae6fd",
-        background: i % 2 === 0 ? "#fff" : "#f0f9ff"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1.2fr 1fr auto",
-        padding: "8px 12px",
-        gap: 8,
-        alignItems: "center"
-      }
-    }, /*#__PURE__*/React.createElement("input", {
-      type: "number",
-      value: row.cantidad,
-      onChange: e => upd("cantidad", e.target.value),
-      placeholder: "Cantidad",
-      style: {
-        ...S.input,
-        fontWeight: 700,
-        color: "#0369a1"
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 4
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 12,
-        color: "#888"
-      }
-    }, "$"), /*#__PURE__*/React.createElement("input", {
-      type: "number",
-      step: "0.10",
-      value: row.costoManoObra,
-      onChange: e => upd("costoManoObra", e.target.value),
-      placeholder: costoManoObra,
-      style: {
-        ...S.input,
-        flex: 1
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 11,
-        color: "#888"
-      }
-    }, "/m\xB2")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 4
-      }
-    }, /*#__PURE__*/React.createElement("input", {
-      type: "number",
-      min: "1",
-      max: "80",
-      value: row.utilidad,
-      onChange: e => upd("utilidad", parseInt(e.target.value) || utilidad),
-      style: {
-        ...S.input,
-        width: 55,
-        textAlign: "center",
-        fontWeight: 700
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 12,
-        color: "#888"
-      }
-    }, "%")), /*#__PURE__*/React.createElement("button", {
-      onClick: () => setCantidadesComp(cantidadesComp.filter((_, j) => j !== i)),
-      style: {
-        background: "none",
-        border: "none",
-        color: "#dc2626",
-        cursor: "pointer",
-        fontSize: 18,
-        lineHeight: 1,
-        padding: "0 4px"
-      }
-    }, "\xD7")), r && /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 16,
-        padding: "4px 12px 8px 12px",
-        fontSize: 12,
-        color: "#555",
-        flexWrap: "wrap",
-        borderTop: "1px solid #e0f2fe"
-      }
-    }, /*#__PURE__*/React.createElement("span", null, "\uD83E\uDDFE Cart\xF3n: ", /*#__PURE__*/React.createElement("strong", {
-      style: {
-        color: "#1a1a2e"
-      }
-    }, fmt(r.costoLamTotal))), /*#__PURE__*/React.createElement("span", null, "\u2699\uFE0F M.O.: ", /*#__PURE__*/React.createElement("strong", {
-      style: {
-        color: "#1a1a2e"
-      }
-    }, fmt(r.costoProduccionTotal))), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCB0 ", /*#__PURE__*/React.createElement("strong", {
-      style: {
-        color: "#1a1a2e"
-      }
-    }, "$", fmtN(r.precioSugPieza), "/pza")), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6 Total: ", /*#__PURE__*/React.createElement("strong", {
-      style: {
-        color: "#1a1a2e"
-      }
-    }, fmt(r.precioSugTotal))), diff !== null && /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: diff < 0 ? "#16a34a" : "#dc2626",
-        fontWeight: 700
-      }
-    }, diff < 0 ? `${diff}% más barato/pza` : diff > 0 ? `+${diff}% más caro/pza` : "mismo precio")));
-  }))), /*#__PURE__*/React.createElement(Field, {
-    label: "% de merma"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    step: "0.5",
-    min: "0",
-    max: "30",
-    value: mermaPorc,
-    onChange: e => setMermaPorc(e.target.value),
-    style: {
-      ...S.input,
-      width: 70,
-      textAlign: "center",
-      fontWeight: 700
-    },
-    placeholder: "7"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      background: "#fafaf8",
-      border: "1px solid #e8e7e0",
-      borderRadius: 7,
-      padding: "8px 10px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#aaa",
-      fontWeight: 700,
-      textTransform: "uppercase"
-    }
-  }, "Hojas de merma"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 800,
-      color: "#7c3aed",
-      fontSize: 15
-    }
-  }, Math.ceil((parseFloat(cantidad) || 0) * (parseFloat(mermaPorc) || 7) / 100).toLocaleString(), " pzas"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#aaa"
-    }
-  }, "de ", parseInt(cantidad || 0).toLocaleString(), " totales")))), /*#__PURE__*/React.createElement(Field, {
-    label: "Costo mano de obra ($/m\xB2)"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 6,
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    step: "0.01",
-    value: costoManoObra,
-    onChange: e => setCostoManoObra(e.target.value),
-    placeholder: "2.50",
-    style: {
-      ...S.input,
-      borderColor: "#7c3aed"
-    }
-  }), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setCostoManoObra("2.50"),
-    style: {
-      ...S.btn("#f5f3ff", "#7c3aed"),
-      flexShrink: 0,
-      fontSize: 11,
-      padding: "8px 10px"
-    }
-  }, "\u21BA 2.50"))), /*#__PURE__*/React.createElement(Field, {
-    label: "Costo grabados/suaje ($)",
-    col: "1/-1"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    step: "0.01",
-    value: grabadosCosto,
-    onChange: e => setGrabadosCosto(e.target.value),
-    placeholder: "0.00",
-    style: S.input
-  })), parseFloat(grabadosCosto) > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      gridColumn: "1/-1"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#aaa",
-      fontWeight: 700,
-      textTransform: "uppercase",
-      marginBottom: 6
-    }
-  }, "\xBFC\xF3mo se cobra el grabado/suaje?"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8
-    }
-  }, [{
-    v: false,
-    l: "💰 Cobrar por separado al cliente"
-  }, {
-    v: true,
-    l: "📦 Incluir en el precio por pieza"
-  }].map(o => /*#__PURE__*/React.createElement("button", {
-    key: String(o.v),
-    onClick: () => setGrabadosCobrar(o.v),
-    style: {
-      flex: 1,
-      padding: "9px 0",
-      borderRadius: 8,
-      border: `2px solid ${grabadosCobrar === o.v ? "#e8a317" : "#e0e0e0"}`,
-      background: grabadosCobrar === o.v ? "#1a1a2e" : "#fafaf8",
-      color: grabadosCobrar === o.v ? "#e8a317" : "#888",
-      fontWeight: 700,
-      fontSize: 12,
-      cursor: "pointer"
-    }
-  }, o.l))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#888",
-      marginTop: 5
-    }
-  }, grabadosCobrar ? "✅ Se diluye en el precio/pza: el costo queda absorbido." : "💡 El cliente paga el suaje por separado además del precio de la caja."))), calc && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#1a1a2e",
-      borderRadius: 8,
-      padding: "10px 14px",
-      marginBottom: 12,
-      display: "flex",
-      justifyContent: "space-between"
-    }
+    className: "cz-tbl"
   }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#aaa",
-      fontSize: 13
-    }
-  }, "Costo cart\xF3n"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#e8a317",
-      fontWeight: 800,
-      fontSize: 16
-    }
-  }, fmt(calc.costoLamTotal))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 12
-    }
+    className: "cz-folio"
+  }, "Cotizaciones"), /*#__PURE__*/React.createElement("span", {
+    className: "cz-count"
+  }, lista.length, " registradas")), /*#__PURE__*/React.createElement("div", {
+    className: "cz-tbr"
+  }, canCreate && /*#__PURE__*/React.createElement("button", {
+    className: "cz-btn primary",
+    onClick: nuevo
+  }, "+ Nueva cotización"))), lista.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "cz-card"
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      marginBottom: 4
-    }
-  }, /*#__PURE__*/React.createElement("label", {
-    style: S.label
-  }, "Utilidad"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 800,
-      color: "#e8a317",
-      fontSize: 16
-    }
-  }, utilidad, "%")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: "15",
-    max: "65",
-    value: utilidad,
-    onChange: e => setUtilidad(parseInt(e.target.value)),
-    style: {
-      width: "100%",
-      accentColor: "#e8a317"
-    }
-  }))), calc && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#1a1a2e",
-      borderRadius: 12,
-      padding: 20
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#aaa",
-      fontSize: 11,
-      fontWeight: 700,
-      textTransform: "uppercase",
-      marginBottom: 14
-    }
-  }, "\uD83D\uDCCA An\xE1lisis y Resultado"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 12,
-      padding: "10px 14px",
-      background: "#12122a",
-      borderRadius: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#e8a317",
-      fontSize: 11,
-      fontWeight: 700,
-      textTransform: "uppercase",
-      marginBottom: 8
-    }
-  }, "\uD83D\uDCD0 Superficie"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 8
-    }
-  }, [["m²/pieza", calc.areaM2pieza + " m²"], ["m² total", calc.m2total + " m²"], ["m² c/merma", calc.m2merma + " m²"]].map(([k, v]) => /*#__PURE__*/React.createElement("div", {
-    key: k
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9,
-      color: "#666",
-      fontWeight: 700,
-      textTransform: "uppercase"
-    }
-  }, k), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: "#fff",
-      marginTop: 2
-    }
-  }, v))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#aaa",
-      fontSize: 11,
-      fontWeight: 700,
-      textTransform: "uppercase",
-      marginBottom: 8
-    }
-  }, "\uD83D\uDCB2 Desglose de costos"), [["Cartón (" + calc.m2merma + " m² × $" + fmtN(parseFloat(precioLaminaM2) || 0) + ")", fmt(calc.costoLamTotal), "#fff"], ["Mano de obra ($" + fmtN(calc.costoProduccionM2) + "/m² × " + calc.m2total + " m²)", fmt(calc.costoProduccionTotal), "#fff"], ...(calc.costoEng > 0 ? [["Engrapado (" + calc.cant + " pzas × $" + PARAMS.engrapado + ")", fmt(calc.costoEng * calc.cant), "#fff"]] : []), ...(calc.grabEnPrecio > 0 ? [["Grabados/suaje (incluido en precio)", fmt(calc.grabEnPrecio), "#fff"]] : []), ["Costo total", fmt(calc.subtotalTotal), "#e8a317"], ["Costo por pieza", "$" + fmtN(calc.subtotalPieza), "#e8a317"]].map(([k, v, c]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "5px 0",
-      borderBottom: "1px solid #2d2d4e",
-      fontSize: 12
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#888"
-    }
-  }, k), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 700,
-      color: c
-    }
-  }, v))), calc.grabSeparado > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 6,
-      padding: "6px 10px",
-      background: "#2d2d4e",
-      borderRadius: 6,
-      fontSize: 11,
-      color: "#aaa"
-    }
-  }, "\u26A0\uFE0F Grabados/suaje por separado: ", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: "#e8a317"
-    }
-  }, fmt(calc.grabSeparado)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#e8a31722",
-      border: "1px solid #e8a31744",
-      borderRadius: 10,
-      padding: 14,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#e8a317",
-      fontWeight: 700,
-      textTransform: "uppercase"
-    }
-  }, "\uD83D\uDCB0 Precio de venta"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 12,
-      color: "#aaa",
-      marginTop: 2
-    }
-  }, "$", fmtN(calc.precioSugPieza), "/pza \xB7 ", utilidad, "% utilidad")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 26,
-      fontWeight: 900,
-      color: "#e8a317"
-    }
-  }, fmt(calc.precioSugTotal)))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#aaa",
-      fontSize: 11,
-      fontWeight: 700,
-      textTransform: "uppercase",
-      marginBottom: 8
-    }
-  }, "\uD83D\uDCCB Desglose de utilidad"), [["Utilidad bruta", fmt(calc.utilBruta), "#fff"], ["ISR (" + PARAMS.tasaISR + "%)", "− " + fmt(calc.isr), "#f87171"], ["Seg. Social / IMSS (" + PARAMS.tasaSegSocial + "%)", "− " + fmt(calc.segSoc), "#f87171"], ["Utilidad neta", fmt(calc.utilNeta), calc.utilNeta >= 0 ? "#4ade80" : "#f87171"], ["Margen neto", calc.margenNeto + "%", calc.utilNeta >= 0 ? "#4ade80" : "#f87171"]].map(([k, v, c]) => /*#__PURE__*/React.createElement("div", {
-    key: k,
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      padding: "5px 0",
-      borderBottom: "1px solid #2d2d4e",
-      fontSize: 12
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#888"
-    }
-  }, k), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontWeight: 700,
-      color: c
-    }
-  }, v))))), /*#__PURE__*/React.createElement("button", {
-    onClick: guardar,
-    disabled: !resultado || !cl,
-    style: {
-      background: resultado && cl ? "#e8a317" : "#e0e0e0",
-      color: resultado && cl ? "#1a1a2e" : "#aaa",
-      border: "none",
-      borderRadius: 8,
-      padding: "13px 0",
-      fontWeight: 800,
-      fontSize: 15,
-      cursor: calc && cl ? "pointer" : "not-allowed",
-      width: "100%"
-    }
-  }, "\uD83D\uDCBE Guardar Cotizaci\xF3n"), !cl && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "#fffbeb",
-      borderRadius: 8,
-      padding: "9px 12px",
-      fontSize: 13,
-      color: "#92400e",
-      textAlign: "center"
-    }
-  }, "\u26A0\uFE0F Selecciona un cliente primero")))));
+    className: "cz-empty"
+  }, "Aún no hay cotizaciones. ", canCreate ? 'Pulsa “Nueva cotización” para crear la primera.' : '')) : /*#__PURE__*/React.createElement("div", {
+    className: "cz-card"
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "cz-tabla"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Folio"), /*#__PURE__*/React.createElement("th", null, "Cliente / producto"), /*#__PURE__*/React.createElement("th", null, "Tipo"), /*#__PURE__*/React.createElement("th", null, "Cajas"), /*#__PURE__*/React.createElement("th", null, "$ Millar"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, lista.map(c => /*#__PURE__*/React.createElement("tr", {
+    key: c.id
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "mono"
+  }, c.folio || '—'), /*#__PURE__*/React.createElement("td", null, c.cliente || '—', /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+    className: "cz-muted"
+  }, c.producto || '')), /*#__PURE__*/React.createElement("td", {
+    className: "cz-muted"
+  }, czTipoNombre(c.tipoCaja)), /*#__PURE__*/React.createElement("td", {
+    className: "mono"
+  }, czNum(czN(c.cantidadCliente), 0)), /*#__PURE__*/React.createElement("td", {
+    className: "mono"
+  }, czMxn(c.precioMillar)), /*#__PURE__*/React.createElement("td", {
+    className: "cz-acts"
+  }, canEdit && /*#__PURE__*/React.createElement("button", {
+    className: "cz-btn ghost sm",
+    onClick: () => editar(c)
+  }, "Editar"), canDelete && /*#__PURE__*/React.createElement("button", {
+    className: "cz-btn ghost sm danger",
+    onClick: () => borrar(c)
+  }, "Borrar")))))))));
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
